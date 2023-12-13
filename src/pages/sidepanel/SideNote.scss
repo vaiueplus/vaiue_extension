@@ -1,0 +1,164 @@
+@use '@src/assets/style/variable.scss' as v;
+@import '@src/assets/style/bulma.min.css';
+
+hr {
+    border: 0;
+    clear:both;
+    display:block;
+    width: 96%;               
+    background-color:#FFFF00;
+    height: 1px;
+  }
+
+.tool-note-page {
+  overflow-y: hidden; /* Hide vertical scrollbar */
+  overflow-x: hidden; /* Hide horizontal scrollbar */
+
+  background-color: v.$color_white_dark;
+  padding: 1em 2em;
+
+  .note-header-comp {
+      display: flex;
+      align-items: center;
+      justify-content: left;
+      gap: 1em;
+      
+      h2 {
+          font-size: 2em;
+          font-weight: 600;
+      }
+
+      .note-header-actions{
+          margin-left: auto;
+
+      }
+  }
+
+  .note-item-container {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1em;          
+  }
+
+  .note-item-comp {
+      display: flex;
+      align-items: center;
+      justify-content: left;
+      border-radius: 1em;
+      border: solid 1px black;
+      padding: 0.5em 1em;
+      
+      p {
+          overflow:hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;        
+      }
+
+      object {
+          margin-left: auto;
+
+          
+          @media screen and (max-width: 768px) {
+              display: none;
+          }
+      }
+
+      &.active{
+          border: solid 1px v.$color_green_shallow;
+          color: v.$color_green_shallow;
+
+          object {
+              filter: brightness(0) saturate(100%) invert(58%) sepia(95%) saturate(336%) hue-rotate(93deg) brightness(94%) contrast(93%);
+          }
+      }
+    
+
+      &:hover {
+          border: solid 1px v.$color_light_blue;
+          color: v.$color_light_blue;
+          cursor:pointer;
+
+          object {
+              filter: invert(20%) sepia(89%) saturate(2111%) hue-rotate(201deg) brightness(97%) contrast(103%);
+          }
+      }
+  }
+    
+
+
+    .preview-comp {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1em;          
+
+
+
+        div[role="textbox"] {
+
+            padding : 0.5em;
+
+            &:focus{
+                outline-style: auto; 
+                outline-width: 5px;
+                outline-color: v.$color_green_shallow;;    
+            }
+        }
+
+        .note-block-comp {
+            position: relative;
+
+            .note-block-btn {
+                position: absolute;
+                right: 0;
+                bottom: 0;
+            }
+        }
+    }
+}
+
+#float_source_panel {
+    position: absolute;
+    background-color: aquamarine;
+    top: 50%;
+    left: 50%;
+    
+    display: none;
+    flex-direction: column;
+    gap: 1em;
+
+    padding: 1em;
+    border-radius: 5px;
+    width: 20em;
+
+    section {
+        display: flex;
+        gap : 0.4em;
+        
+        input {
+            flex: 1;
+            min-width: 0;
+        }
+    }
+}
+
+#float_action_bar {
+    position: absolute;
+    background-color: aquamarine;
+    top: 50%;
+    left: 50%;
+    
+    display: none;
+    flex-direction: column;
+    gap: 0.2em;
+
+    padding: 0.2em;
+    border-radius: 5px;
+    width: 5em;
+    
+    hr {
+        padding: 0;
+        margin: 0;
+    }
+}
