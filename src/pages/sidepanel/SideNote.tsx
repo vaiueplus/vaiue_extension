@@ -4,7 +4,7 @@ import useStorage from '@src/shared/hooks/useStorage';
 import exampleThemeStorage from '@src/shared/storages/exampleThemeStorage';
 import withSuspense from '@src/shared/hoc/withSuspense';
 import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
-import { Link, redirect } from "react-router-dom";
+import { Link, redirect, useNavigate } from "react-router-dom";
 import { UserSSO_Struct } from '@src/utility/data_structure';
 import { useEffect } from 'react';
 import { GetEmptyNotePage, NotePageType } from '@root/src/utility/note_data_struct';
@@ -28,8 +28,6 @@ const SidePanel = () => {
 
   return (
     <div className="tool-note-page">
-
-      <p>HI, I am happy</p>
       {/* <Link to="note/50">Go to the home page</Link> */}
       
       <NoteHeaderComp userStruct={static_user}></NoteHeaderComp>
@@ -45,8 +43,8 @@ const NoteHeaderComp = function({userStruct}: {userStruct: UserSSO_Struct}) {
   const set_note_dict = useNoteDictStore((state) => state.set);
   const note_focus_set = useNoteFocusStore((state) => state.set_id);
 
-  function create_new_note() {
-      let new_block : NotePageType = GetEmptyNotePage();
+  function create_new_note() {      
+          let new_block : NotePageType = GetEmptyNotePage();
           new_block._id = uuidv4();
           new_block.title = "Note #" + (notes.count() + 1);
           new_block.date = new Date().toDateString();

@@ -23,6 +23,11 @@ const router = createMemoryRouter([
     path: "/note/:block_id",
     element: (<SideBlock></SideBlock>),
   },
+
+  {
+    path: "/admin",
+    element: (<p>Where is the place to add road</p>),
+  },
 ]);
 
 
@@ -35,7 +40,6 @@ function init() {
   const root = createRoot(appContainer);
   root.render(
     <main>
-      <p>ROot</p>
       <React.StrictMode>
         <RouterProvider router={router} />
       </React.StrictMode>

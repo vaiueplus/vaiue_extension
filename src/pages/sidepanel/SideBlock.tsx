@@ -16,7 +16,7 @@ import { MouseHelper } from '@root/src/utility/ui/mouse_helper';
 import { Fragment } from 'react';
 import RenderSlateContent from '@root/src/utility/slate_editor/slate_note_content';
 import { RenderSideActionBar, RenderSourcePanel } from '@root/src/utility/ui/floating_panel';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 const SideBlock = () => {
     let { block_id } = useParams();
@@ -193,6 +193,7 @@ const add_new_row = function() {
 
 return (
     <div className="preview-comp">
+        <Link className='button' to="/">Back</Link>
         { render_slate_contents() }
     </div>
 );
