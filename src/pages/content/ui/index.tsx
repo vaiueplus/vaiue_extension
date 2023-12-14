@@ -28,4 +28,12 @@ shadowRoot.appendChild(styleElement);
  * Please refer to the PR link above and go back to the contentStyle.css implementation, or raise a PR if you have a better way to improve it.
  */
 
+window.addEventListener("mouseup", (e) => {
+    const selection  : any = window.getSelection();
+    const getRange = selection.getRangeAt(0); 
+
+    console.log(getRange.getBoundingClientRect());
+
+});
+
 createRoot(rootIntoShadow).render(<App />);
