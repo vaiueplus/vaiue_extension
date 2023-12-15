@@ -114,8 +114,8 @@ const SideBlock = () => {
 
         if (block == null) return;
 
-        floatActionbar.setCallback(id, on_action_bar_state_click);
-        floatSourcePanel.setCallback(id, (block.source == null) ? "" : block.source, on_source_link_set);
+        floatActionbar.set_callback(id, on_action_bar_state_click);
+        floatSourcePanel.set_callback(id, (block.source == null) ? "" : block.source, on_source_link_set);
     }
 
     const on_action_bar_state_click = function(block_id:string, state: FloatActionBarState) {

@@ -30,8 +30,6 @@ export class AbstractMovable {
 
         if (dom == undefined) return;
 
-        console.log("is_show " + is_show);
-
         dom.style.display = (is_show) ? "flex" : "none";
     }
 
@@ -41,6 +39,7 @@ export class AbstractMovable {
     }
 
     set_position(x: number, y: number) {
+
         let dom = this.get_dom();
 
         if (dom == undefined) return;

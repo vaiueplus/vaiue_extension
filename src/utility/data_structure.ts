@@ -40,3 +40,11 @@ export interface UserSSO_Struct {
     email: string,
 }
 //#endregion
+
+//#region Extension event
+export interface ExtensionMessageStruct {
+    id: number,
+    sender: number,
+    body: any,
+}
+//#endregion

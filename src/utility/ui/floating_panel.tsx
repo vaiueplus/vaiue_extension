@@ -17,7 +17,7 @@ export class RenderSourcePanel extends AbstractMovable {
         super.show(is_show);
     }
 
-    setCallback(block_id: string, link_address: string, callback: (id: string, link:string) => void) {
+    set_callback(block_id: string, link_address: string, callback: (id: string, link:string) => void) {
         this._callback = callback;
         this.set_input_value(link_address);
         this._block_id = block_id;
@@ -71,7 +71,7 @@ export class RenderSideActionBar extends AbstractMovable {
         this.id = "float_action_bar";
     }
 
-    setCallback(block_id: string, callback: (block_id: string, state: FloatActionBarState) => void) {
+    set_callback(block_id: string, callback: (block_id: string, state: FloatActionBarState) => void) {
         this._callback = callback;
         this._block_id = block_id;
     }
@@ -92,17 +92,15 @@ export class RenderSideActionBar extends AbstractMovable {
 }
 
 export class RenderHighlightBar extends AbstractMovable {
-    private _callback: ((block_id: string, state: FloatActionBarState) => void) | null = null;
-    private _block_id: string = "";
+    private _callback: (() => void) | null = null;
 
     constructor() {
         super();
         this.id = "float_highlight_bar";
     }
 
-    setCallback(block_id: string, callback: (block_id: string, state: FloatActionBarState) => void) {
+    set_callback(callback: () => void) {
         this._callback = callback;
-        this._block_id = block_id;
     }
 
     show(is_show: boolean) {
@@ -112,7 +110,7 @@ export class RenderHighlightBar extends AbstractMovable {
     render() {
         return(
             <div id={this.id}>
-                <button onClick={() => this._callback?.(this._block_id, FloatActionBarState.Image)}>Paste</button>
+                <button onClick={() => this._callback?.()}>Paste</button>
             </div>
         )
     }

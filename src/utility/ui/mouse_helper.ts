@@ -11,7 +11,6 @@ export class MouseHelper {
 
     private _mouse_down: (event: MouseEvent) => void;
     private _mouse_up: (event: MouseEvent) => void;
-
     private _mouse_move: (event: MouseEvent) => void;
 
     constructor() {
@@ -23,6 +22,9 @@ export class MouseHelper {
         window.addEventListener("mousedown", this._mouse_down);
         window.addEventListener("mouseup", this._mouse_up);
         window.addEventListener("mousemove", this._mouse_move);
+
+        window.addEventListener("scroll", this.on_common_event.bind(this));
+        window.addEventListener("resize", this.on_common_event.bind(this));
     }
 
     public register_mouse_down(callback: (pos: Vector2) => void) {
@@ -33,10 +35,17 @@ export class MouseHelper {
         this._event_system.ListenToEvent(EventID.MouseUp, callback);
     }
 
+    public register_changes(callback: () => void) {
+        this._event_system.ListenToEvent(EventID.PageChange, callback);
+    }
+
     public dispose() {
         window.removeEventListener("mousedown", this._mouse_down);
         window.removeEventListener("mouseup", this._mouse_up);
-        window.removeEventListener("mousemove", this._mouse_move); 
+        window.removeEventListener("mousemove", this._mouse_move);
+
+        window.removeEventListener("scroll", this.on_common_event);  
+        window.removeEventListener("resize", this.on_common_event);
     }
 
     private on_mouse_down(event: MouseEvent) {
@@ -47,6 +56,10 @@ export class MouseHelper {
     private on_mouse_up(event: MouseEvent) {
         this.on_mouse_move(event);
         this._event_system.Notify(EventID.MouseUp, new Vector2(event.clientX, event.clientY));
+    }
+
+    private on_common_event() {
+        this._event_system.Notify(EventID.PageChange, new Vector2(MouseHelper.x, MouseHelper.y));
     }
 
     private on_mouse_move(event: MouseEvent) {
