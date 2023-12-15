@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import App from '@pages/content/ui/app';
 import refreshOnUpdate from 'virtual:reload-on-update-in-view';
 import injectedStyle from './injected.css?inline';
+import Browser from 'webextension-polyfill';
 
 refreshOnUpdate('pages/content');
 
@@ -28,12 +29,15 @@ shadowRoot.appendChild(styleElement);
  * Please refer to the PR link above and go back to the contentStyle.css implementation, or raise a PR if you have a better way to improve it.
  */
 
-window.addEventListener("mouseup", (e) => {
-    const selection  : any = window.getSelection();
-    const getRange = selection.getRangeAt(0); 
+let contentWorker = chrome.runtime.connect({ name: "port-from-cs" });
+// window.addEventListener("mouseup", (e) => {
+//     const selection  : any = window.getSelection();
+//     const getRange = selection.getRangeAt(0); 
 
-    console.log(getRange.getBoundingClientRect());
+//     console.log(getRange.getBoundingClientRect());
 
-});
+//     contentWorker.postMessage({message: 'hi'});
+// });
+
 
 createRoot(rootIntoShadow).render(<App />);
