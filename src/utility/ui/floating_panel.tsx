@@ -112,7 +112,7 @@ export class RenderHighlightBar extends AbstractMovable {
     render() {
         return(
             <div id={this.id}>
-                <button onClick={() => this._callback?.(this._block_id, FloatActionBarState.Image)}>Insert</button>
+                <button onClick={() => this._callback?.(this._block_id, FloatActionBarState.Image)}>Paste</button>
             </div>
         )
     }

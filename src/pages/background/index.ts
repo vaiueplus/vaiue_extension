@@ -9,12 +9,14 @@ reloadOnUpdate('pages/background');
  */
 reloadOnUpdate('pages/content/style.scss');
 
-chrome.runtime.onInstalled.addListener(() => {
+Browser.runtime.onInstalled.addListener(() => {
     console.log("installed");
 });
 
-chrome.runtime.onMessage.addListener(
+Browser.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-        sendResponse({farewell: "goodbye"});
+        console.log(request);
+        console.log(sender);
+
     }
 );

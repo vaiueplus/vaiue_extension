@@ -41,3 +41,13 @@
         margin: 0;
     }
 }
+
+#float_highlight_bar {
+    @include ifloat_bar;
+    gap: 0.2em;
+    padding: 0.2em;
+    border-radius: 5px;
+    width: 5em;
+
+    pointer-events:all;
+}

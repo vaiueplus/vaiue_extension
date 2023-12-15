@@ -13,6 +13,7 @@ export const LocalStorageTable = Object.freeze({
 
 export const EventID = Object.freeze({
     MouseDown : "event@mouse_down",
+    MouseUp : "event@mouse_up",
 });
 
 export const NoteSourceIcon = Object.freeze({

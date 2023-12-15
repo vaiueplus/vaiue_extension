@@ -1,13 +1,13 @@
 import { createRoot } from 'react-dom/client';
 import App from '@pages/content/ui/app';
 import refreshOnUpdate from 'virtual:reload-on-update-in-view';
-import injectedStyle from './injected.css?inline';
+import injectedStyle from './injected.scss?inline';
 import Browser from 'webextension-polyfill';
 
 refreshOnUpdate('pages/content');
 
 const root = document.createElement('div');
-root.id = 'chrome-extension-boilerplate-react-vite-content-view-root';
+root.id = 'vaiue_extension';
 
 document.body.append(root);
 
@@ -28,16 +28,5 @@ shadowRoot.appendChild(styleElement);
  * In the firefox environment, the adoptedStyleSheets bug may prevent contentStyle from being applied properly.
  * Please refer to the PR link above and go back to the contentStyle.css implementation, or raise a PR if you have a better way to improve it.
  */
-
-let contentWorker = chrome.runtime.connect({ name: "port-from-cs" });
-// window.addEventListener("mouseup", (e) => {
-//     const selection  : any = window.getSelection();
-//     const getRange = selection.getRangeAt(0); 
-
-//     console.log(getRange.getBoundingClientRect());
-
-//     contentWorker.postMessage({message: 'hi'});
-// });
-
 
 createRoot(rootIntoShadow).render(<App />);

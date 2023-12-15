@@ -5,7 +5,12 @@ import { MovePanelToPos } from "./floating_panel";
 export class AbstractMovable {
     id : string = "";
     is_show: boolean = false;
+    extension_id = "vaiue_extension";
     protected _dom: HTMLBaseElement | null = null;
+
+    get_extension_dom() {
+        return document.querySelector("#"+ this.extension_id).shadowRoot.querySelector("#"+this.id) as HTMLBaseElement;
+    }
 
     get_dom() {
         if (this.id == "") return null;
@@ -13,6 +18,9 @@ export class AbstractMovable {
         if (this._dom == null)
             this._dom = document.querySelector("#"+this.id) as HTMLBaseElement;
 
+        if (this._dom == null)
+            this._dom = this.get_extension_dom();
+    
         return this._dom;
     }
 
@@ -21,6 +29,8 @@ export class AbstractMovable {
         let dom = this.get_dom();
 
         if (dom == undefined) return;
+
+        console.log("is_show " + is_show);
 
         dom.style.display = (is_show) ? "flex" : "none";
     }
