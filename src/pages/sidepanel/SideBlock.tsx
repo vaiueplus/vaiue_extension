@@ -21,18 +21,14 @@ import StorageModel from './storge_model';
 
 const SideBlock = ({storage} : {storage: StorageModel}) => {
     let { block_id } = useParams();
-    console.log(block_id);
 
     let floatActionbar = new RenderSideActionBar()
     let floatSourcePanel = new RenderSourcePanel()
     const focus_note_id = useNoteFocusStore((state) => state.note_id);
     //const note_dict = useNoteDictStore();
 
-    const test_account_id = "hsinpa_browser_extension";
-
     const get_notes_dict = useNoteDictStore((state) => state.notes_dict);
     const get_note_by_id= useNoteDictStore((state) => state.get);
-    const set_note_dict = useNoteDictStore((state) => state.set);
 
     // //OnDestroy
     useEffect(() => {
@@ -41,10 +37,8 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
             floatSourcePanel.mouse_down_event(pos);
             floatActionbar.mouse_down_event(pos);
         });
-        console.log("useEffect");
 
         return () => {
-            console.log("Destroy");
             mouse_helper.dispose();
         };
     }, []);

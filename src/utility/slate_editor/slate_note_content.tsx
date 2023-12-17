@@ -1,6 +1,6 @@
 'use client'
 
-import { BaseEditor, Descendant, Operation, createEditor } from 'slate'
+import { BaseEditor, Descendant, Operation, createEditor, Selection } from 'slate'
 import { Slate, Editable, withReact, ReactEditor } from 'slate-react'
 import { HistoryEditor, withHistory } from 'slate-history'
 import { NoteRowType } from '@src/utility/note_data_struct';
@@ -29,7 +29,14 @@ export default function RenderSlateContent({index, id, placeholder_text, default
 
         descendents = value;
         value_change_flag = true;
-      }} >
+      }} 
+      
+      onSelectionChange={
+        (h) => {
+          console.log(h);
+        }
+      }
+      >
 
         <Editable readOnly={ readOnly } renderElement={props => <Element {...props} />} renderLeaf={renderLeaf}
 			onBlur={() => {
@@ -39,6 +46,7 @@ export default function RenderSlateContent({index, id, placeholder_text, default
 				}
 			}
     }
+
 
           placeholder={placeholder_text}  />
           {render_addon_btn(index)}

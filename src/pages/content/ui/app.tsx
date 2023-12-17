@@ -51,7 +51,6 @@ export default function App() {
   }, []);
 
   return (<div className="vaiue_content">
-    <p>Hello</p>
     {renderHighlightBar.render()}
   </div>);
 }
