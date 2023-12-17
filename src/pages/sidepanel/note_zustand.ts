@@ -2,7 +2,7 @@ import { List , Map } from 'immutable';
 import {create} from 'zustand';
 import { GetEmptyNotePage, NoteRowType, NotePageType } from '@src/utility/note_data_struct';
 
-type NotePageZusStore = {
+export type NotePageZusStore = {
     notes_dict: Map <string, NotePageType>,
     notes_array: List<string>,
 
@@ -32,16 +32,7 @@ export const useNoteDictStore = create<NotePageZusStore>( (set, get) => ({
 
     set_array(notes: NotePageType[]) {
         set(state => {
-            let cache_dict = state.notes_dict;
-            let cache_array = state.notes_array;
-                cache_array = cache_array.clear();
-
-            for (let n of notes) {
-                cache_dict = cache_dict.set(n._id, n);
-                cache_array = cache_array.push(n._id);
-            }
-
-            return ({notes_dict: cache_dict, notes_array: cache_array}) 
+            return (form_note_store(notes)) 
         });
     },
     
@@ -82,3 +73,16 @@ export const useNoteFocusStore = create<NoteFocusZusStore>(
     },
     is_valid: () => get().note_id != undefined && get().note_id != ""
 }));
+
+
+export const form_note_store = function(notes: NotePageType[]) {
+    let cache_dict = Map<string, NotePageType>();
+    let cache_array = List<string>();
+
+    for (let n of notes) {
+        cache_dict = cache_dict.set(n._id, n);
+        cache_array = cache_array.push(n._id);
+    }
+
+    return ({notes_dict: cache_dict, notes_array: cache_array}) 
+}

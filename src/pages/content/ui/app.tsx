@@ -1,7 +1,11 @@
+import { ExtensionMessageStruct } from '@root/src/utility/data_structure';
+import { MessageID, MessageSender, StorageID } from '@root/src/utility/static_data';
+import { DoDelayAction } from '@root/src/utility/static_utility';
 import { RenderHighlightBar } from '@root/src/utility/ui/floating_panel';
 import { MouseHelper } from '@root/src/utility/ui/mouse_helper';
 import { useEffect } from 'react';
 import Browser from 'webextension-polyfill';
+import { RuntimePort } from './runtime_port';
 
 // window.addEventListener("mouseup", (e) => {
 //   const selection  : any = window.getSelection();
@@ -13,20 +17,27 @@ import Browser from 'webextension-polyfill';
 // });
 
 export default function App() {
+  let port_helper = new RuntimePort(StorageID.Notes);
   let mouse_helper = new MouseHelper();
   let highlight_text : string = "";
 
   const renderHighlightBar = new RenderHighlightBar();
-        renderHighlightBar.set_callback(() => { OnHighlightPasteCallback(highlight_text) });
+        renderHighlightBar.set_callback(() => { 
+          OnHighlightPasteCallback(highlight_text);
+          renderHighlightBar.show(false);
+        });
 
   useEffect(() => {
-    mouse_helper.register_mouse_up((pos) => {
-      highlight_text = SetHighlightBarPos(renderHighlightBar);
+    mouse_helper.register_mouse_up(async (pos) => {
+      let has_connection = await port_helper.check_connection();
+
+      if (has_connection)
+        highlight_text = await SetHighlightBarPos(renderHighlightBar);
     });
 
-    mouse_helper.register_changes(() => {
+    mouse_helper.register_changes(async () => {
       if (renderHighlightBar.is_show)
-      highlight_text = SetHighlightBarPos(renderHighlightBar);
+          highlight_text = await SetHighlightBarPos(renderHighlightBar);
     });
 
     mouse_helper.register_mouse_down((pos) => {
@@ -46,18 +57,26 @@ export default function App() {
 }
 
 const OnHighlightPasteCallback = function(highlight_text: string) {
-  Browser.runtime.sendMessage({message: highlight_text});
+  let messageStruct: ExtensionMessageStruct = { id: MessageID.ContentPaste, sender: MessageSender.Tab, body: highlight_text };
+  Browser.runtime.sendMessage(messageStruct);
   navigator.clipboard.writeText(highlight_text);
+
+  window.getSelection().removeAllRanges();
 }
 
-const SetHighlightBarPos = function (bar: RenderHighlightBar) {
+const SetHighlightBarPos = async function (bar: RenderHighlightBar) {
+  await DoDelayAction(100);
   const selection  : any = window.getSelection();
+
+  if (selection.rangeCount <= 0) return;
+
   const getRange = selection.getRangeAt(0); 
 
   let full_text : string = selection.toString();
       full_text = full_text.trim();
 
   if (full_text == "") return;
+  console.log(full_text);
   bar.show(true);
 
   const selection_bound : DOMRect = getRange.getBoundingClientRect();

@@ -40,3 +40,24 @@ export const Domain = Object.freeze({
     Dev : "http://localhost:8032/",
     Prod : "https://yuri-api.sytes.net/vaiue/",
 });
+
+export const MessageSender = Object.freeze({
+    Tab : 0,
+    SidePanel: 1,
+});
+
+export const MessageID = Object.freeze({
+    ContentPaste : 1,
+    NoteUpdate: 2
+});
+
+export const StorageID = Object.freeze({
+    Notes : "notes"
+});
+
+export const DBAction = Object.freeze({
+    Create: 0,
+    Insert: 1,
+    Update : 2,
+    Delete: 3
+});

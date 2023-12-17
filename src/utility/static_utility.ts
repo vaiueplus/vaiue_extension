@@ -20,7 +20,7 @@ import { Domain } from "./static_data";
     return (url.replace(/^(?:\/\/|[^/#]+)*\//, ''));
   }
 
-  export function DoDelayAction(time : number, callback: () => void) : Promise<void> {
+  export function DoDelayAction(time : number, callback: () => void = null) : Promise<void> {
     return new Promise(function (resolve, reject) {
         let flag = false;
         (

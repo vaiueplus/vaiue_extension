@@ -17,18 +17,20 @@ import { Fragment } from 'react';
 import RenderSlateContent from '@root/src/utility/slate_editor/slate_note_content';
 import { RenderSideActionBar, RenderSourcePanel } from '@root/src/utility/ui/floating_panel';
 import { Link, useParams } from 'react-router-dom';
+import StorageModel from './storge_model';
 
-const SideBlock = () => {
+const SideBlock = ({storage} : {storage: StorageModel}) => {
     let { block_id } = useParams();
     console.log(block_id);
 
     let floatActionbar = new RenderSideActionBar()
     let floatSourcePanel = new RenderSourcePanel()
     const focus_note_id = useNoteFocusStore((state) => state.note_id);
-    const note_dict = useNoteDictStore();
+    //const note_dict = useNoteDictStore();
 
     const test_account_id = "hsinpa_browser_extension";
 
+    const get_notes_dict = useNoteDictStore((state) => state.notes_dict);
     const get_note_by_id= useNoteDictStore((state) => state.get);
     const set_note_dict = useNoteDictStore((state) => state.set);
 
@@ -62,21 +64,24 @@ const SideBlock = () => {
         if (notePage == null || block_index == undefined || block_index < 0) return;
         
         notePage.blocks[block_index] = operation(notePage.blocks[block_index]);
-        note_dict.set(notePage);
+        //note_dict.set(notePage);
 
-        UpdateNotionBlock(test_account_id, notePage);
+        //UpdateNotionBlock(test_account_id, notePage);
+        storage.save_note_to_background(notePage);
     }
 
     const delete_block = function(index: number) {
         let notePage = get_note_by_id(focus_note_id);
         if (notePage == null) return;
 
+
         let delete_blocks = notePage.blocks.splice(index, 1);
-        note_dict.set(notePage);
+        //note_dict.set(notePage);
+        storage.save_note_to_background(notePage);
 
         console.log(notePage.blocks);
 
-        UpdateNotionBlock(test_account_id, notePage);
+        //UpdateNotionBlock(test_account_id, notePage);
     }
 
 //#region UI Event
@@ -134,7 +139,9 @@ const SideBlock = () => {
 //#endregion
 
     const render_slate_contents = function() {
-        let noteFullBlock = get_note_by_id(focus_note_id);
+        let noteFullBlock = get_notes_dict.get(focus_note_id);
+        console.log(noteFullBlock);
+
         if (noteFullBlock == undefined) return <div></div>
 
         let initValue : React.JSX.Element[] = []; 
@@ -188,7 +195,7 @@ const add_new_row = function() {
     new_block._id = uuidv4();
     noteFullBlock.blocks.push(new_block);
 
-    note_dict.set(noteFullBlock);
+    storage.save_note_to_background(noteFullBlock);
 }
 
 return (

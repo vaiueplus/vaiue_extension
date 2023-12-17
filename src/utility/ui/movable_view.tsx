@@ -9,7 +9,7 @@ export class AbstractMovable {
     protected _dom: HTMLBaseElement | null = null;
 
     get_extension_dom() {
-        return document.querySelector("#"+ this.extension_id).shadowRoot.querySelector("#"+this.id) as HTMLBaseElement;
+        return document.querySelector("#"+ this.extension_id)?.shadowRoot?.querySelector("#"+this.id) as HTMLBaseElement;
     }
 
     get_dom() {

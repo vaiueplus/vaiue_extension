@@ -3,15 +3,19 @@
 import { EventID } from "@src/utility/static_data";
 import EventSystem from "@src/utility/EventSystem";
 import { Vector2 } from "@src/utility/VectorMath";
+import { DoDelayAction } from "../static_utility";
 
 export class MouseHelper {
     static x: number = 0;
     static y: number = 0;
     private _event_system : EventSystem;
+    private _common_event_tick: boolean = false;
 
     private _mouse_down: (event: MouseEvent) => void;
     private _mouse_up: (event: MouseEvent) => void;
     private _mouse_move: (event: MouseEvent) => void;
+
+
 
     constructor() {
         this._event_system = new EventSystem();
@@ -23,6 +27,7 @@ export class MouseHelper {
         window.addEventListener("mouseup", this._mouse_up);
         window.addEventListener("mousemove", this._mouse_move);
 
+        window.addEventListener("wheel", this.on_common_event.bind(this));
         window.addEventListener("scroll", this.on_common_event.bind(this));
         window.addEventListener("resize", this.on_common_event.bind(this));
     }
@@ -44,8 +49,9 @@ export class MouseHelper {
         window.removeEventListener("mouseup", this._mouse_up);
         window.removeEventListener("mousemove", this._mouse_move);
 
-        window.removeEventListener("scroll", this.on_common_event);  
-        window.removeEventListener("resize", this.on_common_event);
+        document.removeEventListener("wheel", this.on_common_event);
+        document.removeEventListener("scroll", this.on_common_event);  
+        document.removeEventListener("resize", this.on_common_event);
     }
 
     private on_mouse_down(event: MouseEvent) {
@@ -59,7 +65,13 @@ export class MouseHelper {
     }
 
     private on_common_event() {
-        this._event_system.Notify(EventID.PageChange, new Vector2(MouseHelper.x, MouseHelper.y));
+        if (this._common_event_tick) return;
+        this._common_event_tick = true;
+
+        window.requestAnimationFrame(() => {
+            this._common_event_tick = false;
+            this._event_system.Notify(EventID.PageChange, new Vector2(MouseHelper.x, MouseHelper.y));
+        });
     }
 
     private on_mouse_move(event: MouseEvent) {

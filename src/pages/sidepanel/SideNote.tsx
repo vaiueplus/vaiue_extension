@@ -55,23 +55,23 @@ const NoteHeaderComp = function({userStruct}: {userStruct: UserSSO_Struct}) {
   }
   
 
-  useEffect(() => {
-      if (userStruct.sub == "" || userStruct.sub == undefined) return;
-      console.log(userStruct);
+  // useEffect(() => {
+  //     if (userStruct.sub == "" || userStruct.sub == undefined) return;
+  //     console.log(userStruct);
 
-      let user_id = userStruct.sub;
-      let url =  FormatString(Combine_API(API.GetNoteList),[user_id, 0] );
+  //     let user_id = userStruct.sub;
+  //     let url =  FormatString(Combine_API(API.GetNoteList),[user_id, 0] );
 
-      fetch(url).then((r) => {
-        console.log(r);
-        return r.json();
-      }).then(json => {
-          console.log(json);
+  //     fetch(url).then((r) => {
+  //       console.log(r);
+  //       return r.json();
+  //     }).then(json => {
+  //         console.log(json);
 
-          dispatch_note_page_array(json.result);
-      });
+  //         dispatch_note_page_array(json.result);
+  //     });
 
-  }, []);
+  // }, []);
 
   return (
       <div className="note-header-comp">

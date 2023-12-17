@@ -13,22 +13,28 @@ import {
   Link,
   RouterProvider,
 } from "react-router-dom";
+import StorageModel from './storge_model';
+import withErrorBoundary from '@root/src/shared/hoc/withErrorBoundary';
+import withSuspense from '@root/src/shared/hoc/withSuspense';
 
-const router = createMemoryRouter([
-  {
-    path: "/",
-    element: <SideNote />,
-  },
-  {
-    path: "/note/:block_id",
-    element: (<SideBlock></SideBlock>),
-  },
+const createRouter = function (storage: StorageModel) {  
+  return createMemoryRouter([
+    {
+      path: "/",
+      element: <SideNote />,
+    },
 
-  {
-    path: "/admin",
-    element: (<p>Where is the place to add road</p>),
-  },
-]);
+    {
+      path: "/note/:block_id",
+      element: <SideBlock storage={storage} />,
+    },
+
+    {
+      path: "/admin",
+      element: (<p>Where is the place to add road</p>),
+    },
+  ]);
+}; 
 
 
 function init() {
@@ -36,6 +42,9 @@ function init() {
   if (!appContainer) {
     throw new Error('Can not find #app-container');
   }
+
+  const storageModel = new StorageModel();
+  const router = createRouter(storageModel);
 
   const root = createRoot(appContainer);
   root.render(
@@ -48,3 +57,7 @@ function init() {
 }
 
 init();
+
+chrome.runtime.onConnect.addListener(function(port) {
+
+});
