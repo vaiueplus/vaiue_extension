@@ -1,6 +1,6 @@
 'use client'
 
-import { BaseEditor, Descendant, Operation, createEditor, Selection } from 'slate'
+import { BaseEditor, Descendant, Operation, createEditor, Selection, BaseRange } from 'slate'
 import { Slate, Editable, withReact, ReactEditor } from 'slate-react'
 import { HistoryEditor, withHistory } from 'slate-history'
 import { NoteRowType } from '@src/utility/note_data_struct';
@@ -15,11 +15,14 @@ export default function RenderSlateContent({index, id, placeholder_text, default
     let value_change_flag = false;
     let descendents : Descendant[] = [];
 
+    let _cacheRange: BaseRange;
     let render_addon_btn = function(i: number) {
       if (i <= 0) return <Fragment></Fragment>;
       
       return <button className='note-block-btn' onClick={() => action_bar_event(id)}>+</button>;
     }
+
+    console.log("Slate Block " + id + " is rendered");
 
     return (
       <Slate editor={editor}  initialValue={default_data}
@@ -33,7 +36,7 @@ export default function RenderSlateContent({index, id, placeholder_text, default
       
       onSelectionChange={
         (h) => {
-          console.log(h);
+          _cacheRange = h;
         }
       }
       >
@@ -47,6 +50,13 @@ export default function RenderSlateContent({index, id, placeholder_text, default
 			}
     }
 
+      onSelect={() => {
+        console.log("OnSelect Done");
+        console.log(_cacheRange);
+        console.log(editor.getFragment());
+        console.log(editor.children);
+
+      }}
 
           placeholder={placeholder_text}  />
           {render_addon_btn(index)}
@@ -151,6 +161,10 @@ export function ParseItemsToSlates(blocks: NoteRowType[]) {
   
     if (leaf.underline) {
       children = <u>{children}</u>
+    }
+
+    if (leaf.keyword) {
+      children = <span className='slate-keyword'>{children}</span>
     }
   
     return <span {...attributes}>{children}</span>

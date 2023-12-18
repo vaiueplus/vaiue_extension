@@ -1,4 +1,5 @@
 import '@pages/sidepanel/SideNote.scss';
+import '@pages/sidepanel/SlateStyle.scss';
 import useStorage from '@src/shared/hooks/useStorage';
 import exampleThemeStorage from '@src/shared/storages/exampleThemeStorage';
 import withSuspense from '@src/shared/hoc/withSuspense';
@@ -134,7 +135,6 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
 
     const render_slate_contents = function() {
         let noteFullBlock = get_notes_dict.get(focus_note_id);
-        console.log(noteFullBlock);
 
         if (noteFullBlock == undefined) return <div></div>
 

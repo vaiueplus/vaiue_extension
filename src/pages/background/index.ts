@@ -1,5 +1,5 @@
 import { ExtensionMessageStruct } from '@root/src/utility/data_structure';
-import { GetEmptyNotePage, NoteBlockType, NotePageType, NoteRowType } from '@root/src/utility/note_data_struct';
+import { GetEmptyNotePage, NoteBlockType, NotePageType, NoteParagraphType, NoteRowType } from '@root/src/utility/note_data_struct';
 import { MessageSender, MessageID, StorageID, DBAction } from '@root/src/utility/static_data';
 import reloadOnUpdate from 'virtual:reload-on-update-in-background-script';
 import Browser from 'webextension-polyfill';
@@ -112,9 +112,11 @@ const GetSingleBlock = function(content: string) {
 }
 
 const GetSingleRow = function(content: string) {
+    let modified_paragraph : NoteParagraphType = { text: "Hello world", keyword: true, bold: true }
+
     let row : NoteRowType = {
         type: "paragraph",
-        children: [{ text: content }]
+        children: [{ text: content }, modified_paragraph]
     };
 
     return row;
