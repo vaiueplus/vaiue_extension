@@ -1,7 +1,5 @@
 import '@pages/sidepanel/SideNote.scss';
 import '@pages/sidepanel/SlateStyle.scss';
-import useStorage from '@src/shared/hooks/useStorage';
-import exampleThemeStorage from '@src/shared/storages/exampleThemeStorage';
 import withSuspense from '@src/shared/hoc/withSuspense';
 import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
 import { FloatActionBarState, UserSSO_Struct } from '@src/utility/data_structure';
@@ -19,6 +17,9 @@ import RenderSlateContent from '@root/src/utility/slate_editor/slate_note_conten
 import { RenderSideActionBar, RenderSourcePanel } from '@root/src/utility/ui/floating_panel';
 import { Link, useParams } from 'react-router-dom';
 import StorageModel from './storge_model';
+import { useMemo } from 'react';
+import React from 'react';
+import { memo } from 'react';
 
 const SideBlock = ({storage} : {storage: StorageModel}) => {
     let { block_id } = useParams();
@@ -26,10 +27,12 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
     let floatActionbar = new RenderSideActionBar()
     let floatSourcePanel = new RenderSourcePanel()
     const focus_note_id = useNoteFocusStore((state) => state.note_id);
+    const focus_blocks = useNoteFocusStore((state) => state.blocks);
+
     //const note_dict = useNoteDictStore();
 
     const get_notes_dict = useNoteDictStore((state) => state.notes_dict);
-    const get_note_by_id= useNoteDictStore((state) => state.get);
+    const get_note_by_id = useNoteDictStore((state) => state.get);
 
     // //OnDestroy
     useEffect(() => {
@@ -132,50 +135,6 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
     }
 //#endregion
 
-    const render_slate_contents = function() {
-        let noteFullBlock = get_notes_dict.get(focus_note_id);
-
-        if (noteFullBlock == undefined) return <div></div>
-
-        let initValue : React.JSX.Element[] = []; 
-
-        return (
-            <div>
-                <h2>{noteFullBlock.title}</h2>
-
-                <div key={noteFullBlock.blocks[0]._id} className="note-block-comp">
-                    <RenderSlateContent index={0} id={noteFullBlock.blocks[0]._id} default_data={noteFullBlock.blocks[0].row}
-                    readOnly={false} placeholder_text="Topic . . ."
-                    finish_edit_event={on_slate_title_change} action_bar_event={(id) => {}}></RenderSlateContent>
-                </div>
-
-                <Fragment>
-                {
-                    noteFullBlock.blocks.reduce((array, x, index) => {
-                        if (index == 0) return array;
-
-                        array.push(
-                            <div key={x._id} className="note-block-comp">
-                                <RenderSlateContent id={x._id} default_data={x.row} index={index}
-                                readOnly={false} 
-                                finish_edit_event={on_slate_title_change} 
-                                action_bar_event={on_action_bar_click}
-                                placeholder_text="Text from gpt"></RenderSlateContent>
-                            </div>
-                        );
-
-                        return array;
-                    }, initValue)
-                }
-                </Fragment>
-
-                <button className="button is-primary is-light" onClick={add_block}>Add+</button>
-                { floatSourcePanel.render() }
-                { floatActionbar.render() }
-            </div>
-        )
-  };
-
 const add_block = function() {
     add_new_row();
 }
@@ -191,10 +150,17 @@ const add_new_row = function() {
     storage.save_note_to_background(noteFullBlock);
 }
 
+  let noteFullBlock = get_notes_dict[focus_note_id];
 return (
     <div className="preview-comp">
         <Link className='button' to="/">Back</Link>
-        { render_slate_contents() }
+        <h2>{noteFullBlock.title}</h2>
+
+        <Render_slate_contents note_page={noteFullBlock} on_slate_title_change={on_slate_title_change} on_action_bar_click={on_action_bar_click} />
+
+        <button className="button is-primary is-light" onClick={add_block}>Add+</button>
+        { floatSourcePanel.render() }
+        { floatActionbar.render() }
     </div>
 );
 }
@@ -219,5 +185,73 @@ fetch(url, {
 });
 }
 
+
+const get_block = function(note_id: string, block_id: string, get_note_callback:(id: string) => NotePageType | undefined) {
+    let notePage = get_note_callback(note_id);
+    let block_index = notePage?.blocks.findIndex(x=>x._id == block_id);
+    if (notePage == null || block_index == undefined || block_index < 0) return;
+
+    return notePage.blocks[block_index];
+}
+
+const Render_slate_contents = function(
+        {note_page, on_slate_title_change, on_action_bar_click} : 
+        {   note_page: NotePageType,
+            on_slate_title_change: (id: string, index: number, value: any[]) => void,
+            on_action_bar_click: (id: string) => void
+        }
+    ) {
+    if (note_page == undefined) return <div></div>
+
+    let initValue : React.JSX.Element[] = []; 
+
+    const memoizedElement =  useMemo(() => {
+            return note_page.blocks.reduce((array, x, index) => {
+                if (index == 0) return array;
+
+                array.push(
+                    <Render_slate_content note_block={x} index={index} key={x._id}
+                        on_slate_title_change={on_slate_title_change} on_action_bar_click={on_action_bar_click}/>
+                );
+
+                return array;
+            }, initValue)
+
+        }, [note_page.blocks]);
+
+    return (
+        <div>
+            <div key={note_page.blocks[0]._id} className="note-block-comp">
+                <RenderSlateContent index={0} id={note_page.blocks[0]._id} default_data={note_page.blocks[0].row}
+                readOnly={false} placeholder_text="Topic . . ."
+                finish_edit_event={on_slate_title_change} action_bar_event={(id) => {}}></RenderSlateContent>
+            </div>
+
+            <Fragment>
+            {
+                memoizedElement
+            }
+            </Fragment>
+        </div>
+    )
+  };
+
+const Render_slate_content = memo(function({ note_block, index, on_slate_title_change, on_action_bar_click }: 
+    {note_block: NoteBlockType,
+    index: number,
+    on_slate_title_change: (id: string, index: number, value: any[]) => void,
+    on_action_bar_click: (id: string) => void
+    }) {
+
+        return (
+            <div key={note_block._id} className="note-block-comp">
+                <RenderSlateContent id={note_block._id} default_data={note_block.row} index={index}
+                readOnly={false} 
+                finish_edit_event={on_slate_title_change} 
+                action_bar_event={on_action_bar_click}
+                placeholder_text="Text from gpt"></RenderSlateContent>
+            </div>
+        )
+}, (prev, next) => prev.note_block.version == next.note_block.version);
 
 export default withErrorBoundary(withSuspense(SideBlock, <div> Loading ... </div>), <div> Error Occur </div>);

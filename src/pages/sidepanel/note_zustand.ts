@@ -1,10 +1,11 @@
 import { List , Map } from 'immutable';
 import {create} from 'zustand';
 import { NoteBlockType, NoteRowType, NotePageType } from '@src/utility/note_data_struct';
+import {produce} from "immer"
 
 export type NotePageZusStore = {
-    notes_dict: Map <string, NotePageType>,
-    notes_array: List<string>,
+    notes_dict:  { [id: string] : NotePageType; },
+    notes_array: string[],
 
     get: (id: string) => NotePageType | undefined,
 
@@ -12,8 +13,7 @@ export type NotePageZusStore = {
     set: (note: NotePageType) => void,
     set_array: (notes: NotePageType[]) => void,
 
-    //Block
-    set_block:(note_id:string, index: number, NoteBlockType) => void,
+    insert_block:(id: string, block: NoteBlockType) => void,
 
     //Removal
     remove: (id: string) => void,
@@ -24,18 +24,21 @@ export type NotePageZusStore = {
 // Who is currently pick
 type NoteFocusZusStore = {
     note_id: string,
+    blocks: NoteBlockType[],
     set_id: (id: string | undefined) => void,
+
+    insert_block:(block: NoteBlockType) => void,
+
     is_valid: () => boolean,
 }
 
 export const useNoteDictStore = create<NotePageZusStore>( (set, get) => ({
-    notes_dict: Map<string, NotePageType>(),
-    notes_array: List<string>(),
+    notes_dict: {},
+    notes_array: [],
 
     get(id) {
-        return get().notes_dict.get(id);
+        return get().notes_dict[id];
     },
-
 
     //Note Page
     set_array(notes: NotePageType[]) {
@@ -45,32 +48,36 @@ export const useNoteDictStore = create<NotePageZusStore>( (set, get) => ({
     },
     
     set(note: NotePageType) {
-        set(state => {
+        set( produce( (state : NotePageZusStore) => {
 
-            if (state.notes_dict.has(note._id)) {
-                return ({ notes_dict: state.notes_dict.set(note._id, note) }) ;
-            }   
-            
+            if (!(note._id in state.notes_dict)) {
+                state.notes_array.push(note._id);
+            }
 
-            return ({notes_dict: state.notes_dict.set(note._id, note), notes_array: state.notes_array.push(note._id) }) 
-        });
+            state.notes_dict[note._id] = note;
+        }));
     },
 
-    //Note Block
-    set_block(note_id:string, index: number, NoteBlockType)  {
-
+    insert_block(id: string, block: NoteBlockType) {
+        set( produce( (state : NotePageZusStore) => {
+            state.notes_dict[id].blocks.push(block);
+        }));
     },
 
     //Removal
     remove(id) {
-        set(state => {
+        set(produce( (state : NotePageZusStore) => {
             let index = state.notes_array.findIndex(x=>x == id);
-            return ({notes_dict: state.notes_dict.remove(id), notes_array: state.notes_array.delete(index)}) 
-        });
+            delete state.notes_dict[id];
+            state.notes_array.splice(index, 1);
+        }));
     },
 
     removeAll: () => {
-        set( state => ({ notes_dict: state.notes_dict.clear(), notes_array: state.notes_array.clear() }) );
+        set( state => ({ 
+            notes_dict: {}, 
+            notes_array: [] 
+        }) );
     },
 
     delete_block(note_id:string, index: number) {
@@ -81,6 +88,8 @@ export const useNoteDictStore = create<NotePageZusStore>( (set, get) => ({
 export const useNoteFocusStore = create<NoteFocusZusStore>(
     (set, get) => ({
     note_id: "",
+    blocks: [],
+
     set_id: (id: string | undefined) => {
         if(id == undefined) return;
         if(get().note_id == id) return;
@@ -89,17 +98,25 @@ export const useNoteFocusStore = create<NoteFocusZusStore>(
             return ({...get(), note_id: id}) 
         });
     },
+
+    //Note Block
+    insert_block(block: NoteBlockType)  {
+        set(produce((state: NoteFocusZusStore)  => {
+            state.blocks.push(block);
+        })); 
+    },
+
     is_valid: () => get().note_id != undefined && get().note_id != ""
 }));
 
 
 export const form_note_store = function(notes: NotePageType[]) {
-    let cache_dict = Map<string, NotePageType>();
-    let cache_array = List<string>();
+    let cache_dict :  { [id: string] : NotePageType; } = {};
+    let cache_array : string[]= [];
 
     for (let n of notes) {
-        cache_dict = cache_dict.set(n._id, n);
-        cache_array = cache_array.push(n._id);
+        cache_dict[n._id] = n;
+        cache_array.push(n._id);
     }
 
     return ({notes_dict: cache_dict, notes_array: cache_array}) 

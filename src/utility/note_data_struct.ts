@@ -12,6 +12,7 @@ export const GetEmptyNotePage = function() {
 export const GetEmptyNoteBlock = function() {
     let new_block : NoteBlockType = {
         _id: "",
+        version: 0,
         row: [{type: "paragraph", children: [{text: ""}]}],//Only prepare header block
     }
     return new_block;
@@ -31,6 +32,7 @@ export type NotePageType = {
 export type NoteBlockType = {
     _id: string,
     row : NoteRowType[],
+    version: number,
     source?: string,
 }
 

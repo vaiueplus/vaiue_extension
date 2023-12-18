@@ -1,7 +1,7 @@
 import { DBAction, MessageID, MessageSender, StorageID } from "@root/src/utility/static_data";
 import Browser from "webextension-polyfill";
 import { form_note_store, useNoteDictStore } from "./note_zustand";
-import { NotePageType } from "@root/src/utility/note_data_struct";
+import { NoteBlockType, NotePageType } from "@root/src/utility/note_data_struct";
 import { ExtensionMessageStruct } from "@root/src/utility/data_structure";
 
 export default class StorageModel {
@@ -41,8 +41,13 @@ export default class StorageModel {
         const message : ExtensionMessageStruct = raw_message;
         console.log(message);
         
-        if (message.sender == MessageSender.Background && message.id == MessageID.ContentPaste && message.action == DBAction.Create)
+        if (message.sender != MessageSender.Background) return;
+
+        if (message.id == MessageID.ContentPaste && message.action == DBAction.Create)
             this.set_notes(message.body);
+
+        if (message.id == MessageID.ContentPaste && message.action == DBAction.Insert)
+            this.content_page_insert_note(message.body.id, message.body.block);
     }
 
 
@@ -69,8 +74,12 @@ export default class StorageModel {
        Browser.runtime.sendMessage(messageStruct);
     }
 
-    content_page_create_note() {
-
+    content_page_insert_note(note_id: string, block: NoteBlockType) {
+        // useNoteDictStore.setState((x) => {
+        //     x.insert_block(note_id, block);
+        //     return {};
+        // });
+        useNoteDictStore.getState().insert_block(note_id, block);
     }
 
     set_notes(notes: NotePageType[]) {

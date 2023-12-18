@@ -15,14 +15,14 @@ export default function RenderSlateContent({index, id, placeholder_text, default
     let value_change_flag = false;
     let descendents : Descendant[] = [];
 
+    console.log("RenderSlateContent");
+
     let _cacheRange: BaseRange;
     let render_addon_btn = function(i: number) {
       if (i <= 0) return <Fragment></Fragment>;
       
       return <button className='note-block-btn' onClick={() => action_bar_event(id)}>+</button>;
     }
-
-    console.log("Slate Block " + id + " is rendered");
 
     return (
       <Slate editor={editor}  initialValue={default_data}
