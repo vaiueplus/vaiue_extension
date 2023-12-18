@@ -62,6 +62,7 @@ const OnContentMessage = async function(content: string) {
         message.body = {id: local_record[0]._id, block: s_block};
     }
 
+    Browser.runtime.sendMessage(message);
     Browser.storage.local.set({notes: local_record});
 }
 //#endregion
