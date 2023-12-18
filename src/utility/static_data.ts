@@ -44,6 +44,7 @@ export const Domain = Object.freeze({
 export const MessageSender = Object.freeze({
     Tab : 0,
     SidePanel: 1,
+    Background: 2
 });
 
 export const MessageID = Object.freeze({

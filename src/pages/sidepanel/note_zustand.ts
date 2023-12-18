@@ -1,6 +1,6 @@
 import { List , Map } from 'immutable';
 import {create} from 'zustand';
-import { GetEmptyNotePage, NoteRowType, NotePageType } from '@src/utility/note_data_struct';
+import { NoteBlockType, NoteRowType, NotePageType } from '@src/utility/note_data_struct';
 
 export type NotePageZusStore = {
     notes_dict: Map <string, NotePageType>,
@@ -8,11 +8,17 @@ export type NotePageZusStore = {
 
     get: (id: string) => NotePageType | undefined,
 
+    //Page
     set: (note: NotePageType) => void,
     set_array: (notes: NotePageType[]) => void,
 
+    //Block
+    set_block:(note_id:string, index: number, NoteBlockType) => void,
+
+    //Removal
     remove: (id: string) => void,
     removeAll: () => void,
+    delete_block:(note_id:string, index: number) => void,
 }
 
 // Who is currently pick
@@ -30,6 +36,8 @@ export const useNoteDictStore = create<NotePageZusStore>( (set, get) => ({
         return get().notes_dict.get(id);
     },
 
+
+    //Note Page
     set_array(notes: NotePageType[]) {
         set(state => {
             return (form_note_store(notes)) 
@@ -48,6 +56,12 @@ export const useNoteDictStore = create<NotePageZusStore>( (set, get) => ({
         });
     },
 
+    //Note Block
+    set_block(note_id:string, index: number, NoteBlockType)  {
+
+    },
+
+    //Removal
     remove(id) {
         set(state => {
             let index = state.notes_array.findIndex(x=>x == id);
@@ -57,7 +71,11 @@ export const useNoteDictStore = create<NotePageZusStore>( (set, get) => ({
 
     removeAll: () => {
         set( state => ({ notes_dict: state.notes_dict.clear(), notes_array: state.notes_array.clear() }) );
-    }
+    },
+
+    delete_block(note_id:string, index: number) {
+
+    },
 }));
 
 export const useNoteFocusStore = create<NoteFocusZusStore>(

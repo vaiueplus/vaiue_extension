@@ -39,17 +39,27 @@ Browser.runtime.onMessage.addListener(
 //#region Content Page
 const OnContentMessage = async function(content: string) {
     let local_record = await GetLocalNotes();
+    let message : ExtensionMessageStruct = { sender: MessageSender.Background, id: MessageID.ContentPaste };
+
+    const s_block = GetSingleBlock(content);
 
     if (local_record.length <= 0) {
         let note : NotePageType = GetEmptyNotePage();
         note._id = uuidv4();
-        note.blocks = [GetSingleBlock(content)];
+        note.blocks = [s_block];
         note.title = "Note #1";
         note.date = new Date().toDateString();
 
         local_record = [note];
+
+        message.action = DBAction.Create;
+        message.body = local_record;
+
     } else {
-        local_record[0].blocks.push(GetSingleBlock(content));
+        local_record[0].blocks.push(s_block);
+
+        message.action = DBAction.Insert;
+        message.body = {id: local_record[0]._id, block: s_block};
     }
 
     Browser.storage.local.set({notes: local_record});

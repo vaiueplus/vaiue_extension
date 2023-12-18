@@ -45,6 +45,7 @@ export interface UserSSO_Struct {
 export interface ExtensionMessageStruct {
     id: number,
     sender: number,
-    body: any,
+    action? : number,
+    body?: any,
 }
 //#endregion

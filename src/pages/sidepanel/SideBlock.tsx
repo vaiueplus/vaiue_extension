@@ -59,10 +59,9 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         if (notePage == null || block_index == undefined || block_index < 0) return;
         
         notePage.blocks[block_index] = operation(notePage.blocks[block_index]);
-        //note_dict.set(notePage);
 
         //UpdateNotionBlock(test_account_id, notePage);
-        storage.save_note_to_background(notePage);
+        //storage.save_note_to_background(notePage);
     }
 
     const delete_block = function(index: number) {

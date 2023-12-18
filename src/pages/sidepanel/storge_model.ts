@@ -5,6 +5,8 @@ import { NotePageType } from "@root/src/utility/note_data_struct";
 import { ExtensionMessageStruct } from "@root/src/utility/data_structure";
 
 export default class StorageModel {
+    private _storage_change_event: any;
+    private _message_change_event: any;
 
     constructor() {
         this.registerEvent();
@@ -21,27 +23,29 @@ export default class StorageModel {
     }
 
     registerEvent() {
-        Browser.storage.local.onChanged.addListener(this.logStorageChange.bind(this));
+        this._message_change_event = this.onMessageListener.bind(this);
+
+        Browser.runtime.onMessage.addListener(this._message_change_event);
+        Browser.storage.local.onChanged.addListener(this._storage_change_event);
     }
 
     dispose() {
-        Browser.storage.local.onChanged.removeListener(this.logStorageChange);
+        Browser.runtime.onMessage.removeListener(this._message_change_event);
+    }
+    
+    /**
+     * Only listener to content page injection event
+     * @param raw_message 
+     */
+    onMessageListener(raw_message: any) {
+        const message : ExtensionMessageStruct = raw_message;
+        console.log(message);
+        
+        if (message.sender == MessageSender.Background && message.id == MessageID.ContentPaste && message.action == DBAction.Create)
+            this.set_notes(message.body);
     }
 
-    logStorageChange(changes) {
-        console.log(changes);
-        const changedItems = Object.keys(changes);
-      
-        for (const item of changedItems) {
-            console.log(`${item} has changed:`);
-            console.log("Old value: ", changes[item].oldValue);
-            console.log("New value: ", changes[item].newValue);
-        }
 
-        if (StorageID.Notes in changes) {
-            this.set_notes(changes[StorageID.Notes].newValue);
-        }
-    }
 
     save_note_to_background(note: NotePageType) {
         let messageStruct: ExtensionMessageStruct = { id: MessageID.NoteUpdate, sender: MessageSender.SidePanel,
@@ -65,8 +69,11 @@ export default class StorageModel {
        Browser.runtime.sendMessage(messageStruct);
     }
 
+    content_page_create_note() {
+
+    }
+
     set_notes(notes: NotePageType[]) {
-        form_note_store(notes)
         useNoteDictStore.setState(() => form_note_store(notes));
     }
 }
