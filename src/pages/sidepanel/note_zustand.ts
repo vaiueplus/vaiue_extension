@@ -14,11 +14,12 @@ export type NotePageZusStore = {
     set_array: (notes: NotePageType[]) => void,
 
     insert_block:(id: string, block: NoteBlockType) => void,
+    update_block:(id: string, index: number, block: NoteBlockType) => void,
+    delete_block:(id:string, index: number) => void,
 
     //Removal
     remove: (id: string) => void,
     removeAll: () => void,
-    delete_block:(note_id:string, index: number) => void,
 }
 
 // Who is currently pick
@@ -64,6 +65,25 @@ export const useNoteDictStore = create<NotePageZusStore>( (set, get) => ({
         }));
     },
 
+    update_block(id: string, index: number, block: NoteBlockType) {
+        //If out of index
+        const note_block = get().notes_dict[id];
+        if (index >= note_block.blocks.length) {
+            get().insert_block(id, block);
+            return;
+        }
+
+        set( produce( (state : NotePageZusStore) => {
+            state.notes_dict[id].blocks[index] = (block);
+        }));
+    },
+
+    delete_block(id:string, index: number) {
+        set( produce( (state : NotePageZusStore) => {
+            state.notes_dict[id].blocks.splice(index, 1);
+        }));
+    },
+
     //Removal
     remove(id) {
         set(produce( (state : NotePageZusStore) => {
@@ -80,9 +100,6 @@ export const useNoteDictStore = create<NotePageZusStore>( (set, get) => ({
         }) );
     },
 
-    delete_block(note_id:string, index: number) {
-
-    },
 }));
 
 export const useNoteFocusStore = create<NoteFocusZusStore>(

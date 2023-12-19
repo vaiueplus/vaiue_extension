@@ -116,6 +116,7 @@ const GetLocalNotes = async function() {
 const GetSingleBlock = function(content: string) {
     let block : NoteBlockType = {
         _id: uuidv4(),
+        version: 0,
         row: [GetSingleRow(content)]
     }
 

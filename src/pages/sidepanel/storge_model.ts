@@ -50,8 +50,6 @@ export default class StorageModel {
             this.content_page_insert_note(message.body.id, message.body.block);
     }
 
-
-
     save_note_to_background(note: NotePageType) {
         let messageStruct: ExtensionMessageStruct = { id: MessageID.NoteUpdate, sender: MessageSender.SidePanel,
              body: {
@@ -75,10 +73,6 @@ export default class StorageModel {
     }
 
     content_page_insert_note(note_id: string, block: NoteBlockType) {
-        // useNoteDictStore.setState((x) => {
-        //     x.insert_block(note_id, block);
-        //     return {};
-        // });
         useNoteDictStore.getState().insert_block(note_id, block);
     }
 

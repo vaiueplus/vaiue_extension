@@ -46,7 +46,7 @@ const NoteHeaderComp = function({userStruct}: {userStruct: UserSSO_Struct}) {
   function create_new_note() {      
           let new_block : NotePageType = GetEmptyNotePage();
           new_block._id = uuidv4();
-          new_block.title = "Note #" + (notes.count() + 1);
+          new_block.title = "Note #" + (notes.length + 1);
           new_block.date = new Date().toDateString();
           new_block.blocks[0]._id = uuidv4();
 
@@ -113,7 +113,9 @@ const NoteBodyComp = function({userStruct}: {userStruct: UserSSO_Struct}) {
 
               if (note_block == undefined) return;
               
-              let note_item_class = "note-item-comp"
+              let note_item_class = "note-item-comp";
+              let note_title = note_block.title;
+
               if (note_focus_id == note_block._id) note_item_class += " active"; 
               return (
 

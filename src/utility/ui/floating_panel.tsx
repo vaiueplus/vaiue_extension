@@ -132,3 +132,8 @@ export const MovePanelToPos = function(target: HTMLBaseElement, bound: DOMRect, 
     target.style.left = x + 'px';
     target.style.top = y + 'px';
 }
+
+export const ShowFloatingBoard = function(floating: AbstractMovable, pos_x: number, pos_y: number) {
+    floating.show(true);
+    floating.set_position(pos_x, pos_y);
+}

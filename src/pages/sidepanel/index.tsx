@@ -25,7 +25,7 @@ const createRouter = function (storage: StorageModel) {
     },
 
     {
-      path: "/note/:block_id",
+      path: "/note/:page_id",
       element: <SideBlock storage={storage} />,
     },
 
