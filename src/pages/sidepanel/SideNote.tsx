@@ -55,24 +55,6 @@ const NoteHeaderComp = function({userStruct}: {userStruct: UserSSO_Struct}) {
   }
   
 
-  // useEffect(() => {
-  //     if (userStruct.sub == "" || userStruct.sub == undefined) return;
-  //     console.log(userStruct);
-
-  //     let user_id = userStruct.sub;
-  //     let url =  FormatString(Combine_API(API.GetNoteList),[user_id, 0] );
-
-  //     fetch(url).then((r) => {
-  //       console.log(r);
-  //       return r.json();
-  //     }).then(json => {
-  //         console.log(json);
-
-  //         dispatch_note_page_array(json.result);
-  //     });
-
-  // }, []);
-
   return (
       <div className="note-header-comp">
           <h2>Notes</h2>
@@ -116,6 +98,23 @@ const NoteBodyComp = function({userStruct}: {userStruct: UserSSO_Struct}) {
               let note_item_class = "note-item-comp";
               let note_title = note_block.title;
 
+              let inner_content = note_block.blocks[0].row.reduce((array, x, index) => { 
+
+                array += x.children.reduce((paragraph, x) => {
+
+                  paragraph += x.text;
+                  return paragraph;
+
+                }, "");
+
+                return array;
+              }, "");
+
+              console.log(inner_content);
+
+              if (inner_content.length > 0) 
+                note_title = inner_content
+
               if (note_focus_id == note_block._id) note_item_class += " active"; 
               return (
 
@@ -125,7 +124,7 @@ const NoteBodyComp = function({userStruct}: {userStruct: UserSSO_Struct}) {
                   } }>
                   
                   <section>
-                  <p>{note_block.title}</p>
+                  <h3>{note_title}</h3>
                   <p>{note_block.date}</p>
                   </section>
                   {/* <object data={Combine_Path("texture/platform/expand.svg")} > </object> */}

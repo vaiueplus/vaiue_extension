@@ -60,6 +60,14 @@ hr {
           text-overflow: ellipsis;        
       }
 
+      h3 {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+      
+        width: 70%;
+      }
+
       object {
           margin-left: auto;
 

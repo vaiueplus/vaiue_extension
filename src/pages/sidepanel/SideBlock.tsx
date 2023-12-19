@@ -9,15 +9,12 @@ import { useNoteDictStore, useNoteFocusStore } from './note_zustand';
 import {v4 as uuidv4} from 'uuid';
 import { Combine_API, FormatString } from '@root/src/utility/static_utility';
 import { API } from '@root/src/utility/static_data';
-import { useState } from 'react';
-import { AbstractMovable } from '@root/src/utility/ui/movable_view';
 import { MouseHelper } from '@root/src/utility/ui/mouse_helper';
 import { Fragment } from 'react';
 import RenderSlateContent from '@root/src/utility/slate_editor/slate_note_content';
 import { RenderSideActionBar, RenderSourcePanel, ShowFloatingBoard } from '@root/src/utility/ui/floating_panel';
 import { Link, useParams } from 'react-router-dom';
 import StorageModel from './storge_model';
-import { useMemo } from 'react';
 import React from 'react';
 import { memo } from 'react';
 import { ReactNode } from 'react';
@@ -34,10 +31,14 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
     const insert_block_action = useNoteDictStore((state) => state.insert_block);
     const update_block_action = useNoteDictStore((state) => state.update_block);
     const delete_block_action = useNoteDictStore((state) => state.delete_block);
-    sideBlockHelper.setCallback(update_block_action, delete_block_action);
 
-    const get_notes_dict = useNoteDictStore((state) => state.notes_dict);
-    let noteFullPage = get_notes_dict[page_id];
+    let notes_dict = useNoteDictStore((state) => state.notes_dict);
+    let noteFullPage = notes_dict[page_id];
+
+    sideBlockHelper.set_callback(insert_block_action, update_block_action, delete_block_action);
+    sideBlockHelper.set_parameter(noteFullPage, storage);
+
+    storage.save_note_to_background(noteFullPage);
 
     // //OnDestroy
     useEffect(() => {
@@ -51,35 +52,6 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
             mouse_helper.dispose();
         };
     }, []);
-
-    const get_block = function(block_id: string) {
-        let notePage = noteFullPage;
-        let block_index = notePage?.blocks.findIndex(x=>x._id == block_id);
-        if (notePage == null || block_index == undefined || block_index < 0) return;
-
-        return notePage.blocks[block_index];
-    }
-    
-    const change_block_value = function(block_id: string, operation: (block: NoteBlockType) => NoteBlockType) {
-        let notePage = noteFullPage;
-        let block_index = notePage?.blocks.findIndex(x=>x._id == block_id);
-        
-        if (notePage == null || block_index == undefined || block_index < 0) return;
-        
-        notePage.blocks[block_index] = operation(notePage.blocks[block_index]);
-        update_block_action(noteFullPage._id, block_index, notePage.blocks[block_index]);
-
-        //UpdateNotionBlock(test_account_id, notePage);
-        storage.save_note_to_background(notePage);
-    }
-
-    const delete_block = function(index: number) {
-        let notePage = noteFullPage;
-        if (notePage == null) return;
-
-        delete_block_action(noteFullPage._id, index);
-        storage.save_note_to_background(notePage);
-    }
 
 //#region UI Event
     const on_slate_title_change = function(id: string, index: number, value: any[]) {
@@ -100,19 +72,20 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         if (concat == "") {
             console.log("Concat " + concat);
 
-            delete_block(index);
+            sideBlockHelper.delete_block(index);
             return;
         }
         
-        change_block_value(id, (block: NoteBlockType) => {
-            block.row = paragraph;
-            return block;
+        sideBlockHelper.change_block_value(id, (block: NoteBlockType) => {
+            let new_block = {...block};
+                new_block = {...new_block, row: paragraph}
+            return new_block;
         });
     }
 
     const on_action_bar_click = function(id: string) {
         ShowFloatingBoard(floatActionbar, MouseHelper.x, MouseHelper.y);
-        let block = get_block(id);
+        let block = sideBlockHelper.get_block(id);
 
         if (block == null) return;
 
@@ -128,24 +101,19 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
     }
 
     const on_source_link_set = function(id: string, link: string) {
-        change_block_value(id, (block: NoteBlockType) => {
-            block.source = link;
-            return block;
+        sideBlockHelper.change_block_value(id, (block: NoteBlockType) => {
+            let new_block = {...block};
+                new_block = {...new_block, source: link}
+
+            return new_block;
         });
     }
 //#endregion
 
-const add_block = function() {
-    add_new_row();
-}
 
-const add_new_row = function() {
-    let noteFullBlock = noteFullPage;
-    if (noteFullBlock == null) return;
 
-    let new_block = GetEmptyNoteBlock();
-    new_block._id = uuidv4();
-    insert_block_action(noteFullBlock._id, new_block);
+const add_new_row = function() {    
+    sideBlockHelper.add_new_row();
 }
 
 return (
@@ -156,7 +124,7 @@ return (
         <BlockSlateContents note_page={noteFullPage} on_slate_title_change={on_slate_title_change} on_action_bar_click={on_action_bar_click}>
         </BlockSlateContents>
 
-        <button className="button is-primary is-light" onClick={add_block}>Add+</button>
+        <button className="button is-primary is-light" onClick={add_new_row}>Add+</button>
         { floatSourcePanel.render() }
         { floatActionbar.render() }
     </div>
@@ -174,6 +142,7 @@ const BlockSlateContents = function(
     if (note_page == undefined) return <div></div>
 
     let initValue : React.JSX.Element[] = []; 
+    console.log("BlockSlateContents");
 
     return (
         <div>
