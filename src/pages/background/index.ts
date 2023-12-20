@@ -128,7 +128,7 @@ const GetSingleRow = function(content: string) {
 
     let row : NoteRowType = {
         type: "paragraph",
-        children: [{ text: content }, modified_paragraph]
+        children: [{ text: content }]
     };
 
     return row;

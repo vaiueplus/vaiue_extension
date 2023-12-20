@@ -6,9 +6,13 @@ import { HistoryEditor, withHistory } from 'slate-history'
 import { NoteRowType } from '@src/utility/note_data_struct';
 import React, { Fragment, useCallback, useMemo } from 'react'
 
-export default function RenderSlateContent({index, id, placeholder_text, default_data, readOnly, finish_edit_event, action_bar_event }: 
+export type SelectionFunction = (block_index: number, range: BaseRange, selected_descendents: Descendant[], whole_descendents: Descendant[]) => void;
+
+export default function RenderSlateContent({index, id, placeholder_text, default_data, readOnly, finish_edit_event, action_bar_event, selection_event }: 
     {index: number, id: string, placeholder_text: string, default_data: any[], readOnly: boolean, 
-      finish_edit_event: (id: string, index: number, value: Descendant[]) => void, action_bar_event: (id: string) => void }) {
+      finish_edit_event: (id: string, index: number, value: Descendant[]) => void, 
+      action_bar_event: (id: string) => void,
+      selection_event: SelectionFunction } ) {
 
     const editor = useMemo(() => withHistory(withReact(createEditor())), []);
     const renderLeaf = useCallback( (props: any) => <Leaf {...props} />, [])
@@ -51,11 +55,12 @@ export default function RenderSlateContent({index, id, placeholder_text, default
     }
 
       onSelect={() => {
-        console.log("OnSelect Done");
-        console.log(_cacheRange);
-        console.log(editor.getFragment());
-        console.log(editor.children);
+        // console.log("OnSelect Done");
+        // console.log(_cacheRange);
+        // console.log(editor.getFragment());
+        // console.log(editor.children);
 
+        selection_event(index, _cacheRange, editor.getFragment(), editor.children);
       }}
 
           placeholder={placeholder_text}  />

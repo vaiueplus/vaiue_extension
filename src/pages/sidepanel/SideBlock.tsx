@@ -19,6 +19,8 @@ import React from 'react';
 import { memo } from 'react';
 import { ReactNode } from 'react';
 import { SideBlockHelper } from './SideBlockHelper';
+import { BaseRange, Descendant } from 'slate';
+import { SlateUtility } from '@root/src/utility/slate_editor/slate_utility';
 
 let floatActionbar = new RenderSideActionBar()
 let floatSourcePanel = new RenderSourcePanel()
@@ -100,6 +102,12 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         }
     }
 
+    const on_selection_action = function(block_index: number, range: BaseRange, selected_descendents: Descendant[], whole_descendents: Descendant[]) {
+        SlateUtility.create_highLight_rows(
+            noteFullPage.blocks[block_index].row,
+            range, selected_descendents, whole_descendents);
+    }
+
     const on_source_link_set = function(id: string, link: string) {
         sideBlockHelper.change_block_value(id, (block: NoteBlockType) => {
             let new_block = {...block};
@@ -121,7 +129,9 @@ return (
         <Link className='button' to="/">Back</Link>
         <h2>{noteFullPage.title}</h2>
 
-        <BlockSlateContents note_page={noteFullPage} on_slate_title_change={on_slate_title_change} on_action_bar_click={on_action_bar_click}>
+        <BlockSlateContents note_page={noteFullPage} 
+            on_selection_action={on_selection_action}
+            on_slate_title_change={on_slate_title_change} on_action_bar_click={on_action_bar_click}>
         </BlockSlateContents>
 
         <button className="button is-primary is-light" onClick={add_new_row}>Add+</button>
@@ -132,9 +142,10 @@ return (
 }
 
 const BlockSlateContents = function(
-        {note_page, on_slate_title_change, on_action_bar_click} : 
+        {note_page, on_slate_title_change, on_action_bar_click, on_selection_action} : 
         {   note_page: NotePageType,
             // children?: ReactNode ,
+            on_selection_action: (block_index:number, range: BaseRange, selected_descendents: Descendant[], whole_descendents: Descendant[]) => void,
             on_slate_title_change: (id: string, index: number, value: any[]) => void,
             on_action_bar_click: (id: string) => void
         }
@@ -149,6 +160,7 @@ const BlockSlateContents = function(
             <div key={note_page.blocks[0]._id} className="note-block-comp">
                 <RenderSlateContent index={0} id={note_page.blocks[0]._id} default_data={note_page.blocks[0].row}
                 readOnly={false} placeholder_text="Topic . . ."
+                selection_event={on_selection_action}
                 finish_edit_event={on_slate_title_change} action_bar_event={(id) => {}}></RenderSlateContent>
             </div>
 
@@ -159,7 +171,10 @@ const BlockSlateContents = function(
 
                     array.push(
                         <BlockSlateContent note_block={x} index={index} key={x._id}
-                            on_slate_title_change={on_slate_title_change} on_action_bar_click={on_action_bar_click}/>
+                        on_selection_action={on_selection_action}
+                        on_slate_title_change={on_slate_title_change}
+                        on_action_bar_click={on_action_bar_click}
+                        />
                     );
 
                     return array;
@@ -171,11 +186,12 @@ const BlockSlateContents = function(
     )
 };
 
-const BlockSlateContent = memo(function({ note_block, index, on_slate_title_change, on_action_bar_click }: 
-    {note_block: NoteBlockType,
-    index: number,
-    on_slate_title_change: (id: string, index: number, value: any[]) => void,
-    on_action_bar_click: (id: string) => void
+
+const BlockSlateContent = memo(function({ note_block, index, on_slate_title_change, on_action_bar_click, on_selection_action}: 
+    {   note_block: NoteBlockType, index: number,
+        on_selection_action: (block_index:number, range: BaseRange, selected_descendents: Descendant[], whole_descendents: Descendant[]) => void,
+        on_slate_title_change: (id: string, index: number, value: any[]) => void,
+        on_action_bar_click: (id: string) => void
     }) {
         return (
             <div key={note_block._id} className="note-block-comp">
@@ -183,6 +199,7 @@ const BlockSlateContent = memo(function({ note_block, index, on_slate_title_chan
                 readOnly={false} 
                 finish_edit_event={on_slate_title_change} 
                 action_bar_event={on_action_bar_click}
+                selection_event={on_selection_action}
                 placeholder_text="Text from gpt"></RenderSlateContent>
             </div>
         )
