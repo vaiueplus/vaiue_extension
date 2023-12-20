@@ -59,7 +59,6 @@ export default function RenderSlateContent({index, id, placeholder_text, default
         // console.log(_cacheRange);
         // console.log(editor.getFragment());
         // console.log(editor.children);
-
         selection_event(index, _cacheRange, editor.getFragment(), editor.children);
       }}
 
