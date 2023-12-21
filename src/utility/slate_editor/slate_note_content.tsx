@@ -55,10 +55,10 @@ export default function RenderSlateContent({index, id, placeholder_text, default
     }
 
       onSelect={() => {
-        // console.log("OnSelect Done");
-        // console.log(_cacheRange);
-        // console.log(editor.getFragment());
-        // console.log(editor.children);
+        console.log("OnSelect Done");
+        console.log(_cacheRange);
+        console.log(editor.getFragment());
+        console.log(editor.children);
         selection_event(index, _cacheRange, editor.getFragment(), editor.children);
       }}
 

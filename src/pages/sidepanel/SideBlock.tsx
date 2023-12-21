@@ -103,9 +103,15 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
     }
 
     const on_selection_action = function(block_index: number, range: BaseRange, selected_descendents: Descendant[], whole_descendents: Descendant[]) {
-        SlateUtility.create_highLight_rows(
-            noteFullPage.blocks[block_index].row,
-            range, selected_descendents, whole_descendents);
+        let block_id = noteFullPage.blocks[block_index]._id;
+        const new_keyword_rows = SlateUtility.create_highLight_rows(noteFullPage.blocks[block_index].row, range, selected_descendents, whole_descendents);
+
+        // sideBlockHelper.change_block_value(block_id, (block: NoteBlockType) => {
+        //     let new_block = {...block};
+        //         new_block.row = new_keyword_rows
+        //     return new_block;
+        // });
+
     }
 
     const on_source_link_set = function(id: string, link: string) {
