@@ -7,14 +7,15 @@ export class SlateUtility {
         let new_order : BaseRange = { ...range };
 
         let reverse_plz = false;
-        
-        if (range.anchor.path[1] > range.focus.path[1])
+        console.log(new_order);
+
+        if (new_order.anchor.path[1] > new_order.focus.path[1])
             reverse_plz = true;
 
-        if (!reverse_plz && range.anchor.path[0] > range.focus.path[0])
+        if (!reverse_plz && new_order.anchor.path[0] > new_order.focus.path[0])
             reverse_plz = true;
 
-        if (!reverse_plz && range.anchor.offset > range.focus.offset)
+        if (!reverse_plz && new_order.anchor.offset > new_order.focus.offset)
             reverse_plz = true;
 
         if (reverse_plz) {
@@ -69,9 +70,10 @@ export class SlateUtility {
 
     static create_highLight_rows(
         note_rows: NoteRowType[], range: BaseRange, selected_descendents: any[], whole_descendents: any[]) {
-        console.log(range);
+
+        if (range == undefined) return null;
+
         range = SlateUtility.reorder_base_range(range);
-        console.log(range);
 
         let current_x = range.anchor.path[1];
         let current_y = range.anchor.path[0];
@@ -85,35 +87,67 @@ export class SlateUtility {
         let end_offset = range.focus.offset;
 
         let new_row : NoteRowType[] = [];
-            for (let i = 0; i < whole_descendents.length; i++)
-                new_row.push( {type: "paragraph", children: [] });
 
-        while(current_y <= end_y) {
-            let current_row : NoteRowType = {...whole_descendents[current_y]};
-            let current_paragraph : NoteParagraphType = {...current_row.children[current_x]};
+        //Prebuild descendent array
+        for (let y = 0; y < whole_descendents.length; y++) {
+            let d = whole_descendents[y];
+            let temp_row : NoteRowType = {type: "paragraph", children: [] };
 
-            console.log("current_paragraph");
-            console.log(current_paragraph);
-    
-            const candidates = SlateUtility.create_paragraph(current_paragraph, current_x, current_y, 
+            console.log(d);
+
+            for (let x = 0; x < d.children.length; x++) { 
+                let current_paragraph : NoteParagraphType = {...d.children[x]};
+
+                //If not include in selection
+                if (y < start_y || y > end_y || 
+                    (y == start_y && x < start_x) ||
+                    (y == end_y && x > end_x)
+                    ) {
+                        temp_row.children.push(current_paragraph);
+                        continue;
+                    }
+
+                const candidates = SlateUtility.create_paragraph(current_paragraph, current_x, current_y, 
                                                                 start_x, start_y, start_offset,
                                                                 end_x, end_y, end_offset);
-            const candidate_lens = candidates.length;
-            for (let i = 0; i < candidate_lens; i++) {
-                if (candidates[i].text == "") continue;
-                new_row[current_y].children.push(candidates[i]);
+
+                const candidate_lens = candidates.length;
+
+                for (let i = 0; i < candidate_lens; i++) {
+                    if (candidates[i].text == "") continue;
+                    temp_row.children.push(candidates[i]);
+                }
             }
 
-            if (end_y == current_y && end_x == end_y) {
-                break;
-            }
-
-            current_x++;
-            if (current_x >= current_row.children.length) {
-                current_x = 0;
-                current_y ++; 
-            }
+            new_row.push(temp_row);
         }
+
+        // while(current_y <= end_y) {
+        //     let current_row : NoteRowType = {...whole_descendents[current_y]};
+        //     let current_paragraph : NoteParagraphType = {...current_row.children[current_x]};
+
+        //     console.log("current_paragraph");
+        //     console.log(current_paragraph);
+    
+        //     const candidates = SlateUtility.create_paragraph(current_paragraph, current_x, current_y, 
+        //                                                         start_x, start_y, start_offset,
+        //                                                         end_x, end_y, end_offset);
+        //     const candidate_lens = candidates.length;
+        //     for (let i = 0; i < candidate_lens; i++) {
+        //         if (candidates[i].text == "") continue;
+        //         new_row[current_y].children.push(candidates[i]);
+        //     }
+
+        //     if (end_y == current_y && end_x == end_y) {
+        //         break;
+        //     }
+
+        //     current_x++;
+        //     if (current_x >= current_row.children.length) {
+        //         current_x = 0;
+        //         current_y ++; 
+        //     }
+        // }
 
         console.log("create_highLight_rows Done" );
         console.log(new_row);

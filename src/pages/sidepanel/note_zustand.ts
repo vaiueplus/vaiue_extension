@@ -72,6 +72,7 @@ export const useNoteDictStore = create<NotePageZusStore>( (set, get) => ({
             get().insert_block(id, block);
             return;
         }
+        console.log("update_block");
 
         set( produce( (state : NotePageZusStore) => {
             state.notes_dict[id].blocks[index] = (block);

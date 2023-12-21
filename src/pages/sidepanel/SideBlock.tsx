@@ -106,12 +106,22 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         let block_id = noteFullPage.blocks[block_index]._id;
         const new_keyword_rows = SlateUtility.create_highLight_rows(noteFullPage.blocks[block_index].row, range, selected_descendents, whole_descendents);
 
-        // sideBlockHelper.change_block_value(block_id, (block: NoteBlockType) => {
-        //     let new_block = {...block};
-        //         new_block.row = new_keyword_rows
-        //     return new_block;
-        // });
+        if (new_keyword_rows == undefined) return undefined;
 
+        sideBlockHelper.change_block_value(block_id, (block: NoteBlockType) => {
+            let new_block = {...block};
+
+                console.log("sideBlockHelper.change_block_value");
+
+                new_block.row = new_keyword_rows
+                new_block.version++;
+
+                console.log(new_block);
+
+            return new_block;
+        });
+
+        return new_keyword_rows;
     }
 
     const on_source_link_set = function(id: string, link: string) {
@@ -151,7 +161,7 @@ const BlockSlateContents = function(
         {note_page, on_slate_title_change, on_action_bar_click, on_selection_action} : 
         {   note_page: NotePageType,
             // children?: ReactNode ,
-            on_selection_action: (block_index:number, range: BaseRange, selected_descendents: Descendant[], whole_descendents: Descendant[]) => void,
+            on_selection_action: (block_index:number, range: BaseRange, selected_descendents: Descendant[], whole_descendents: Descendant[]) => NoteRowType[],
             on_slate_title_change: (id: string, index: number, value: any[]) => void,
             on_action_bar_click: (id: string) => void
         }
@@ -159,12 +169,11 @@ const BlockSlateContents = function(
     if (note_page == undefined) return <div></div>
 
     let initValue : React.JSX.Element[] = []; 
-    console.log("BlockSlateContents");
 
     return (
         <div>
             <div key={note_page.blocks[0]._id} className="note-block-comp">
-                <RenderSlateContent index={0} id={note_page.blocks[0]._id} default_data={note_page.blocks[0].row}
+                <RenderSlateContent index={0} version={note_page.blocks[0].version} id={note_page.blocks[0]._id} default_data={note_page.blocks[0].row}
                 readOnly={false} placeholder_text="Topic . . ."
                 selection_event={on_selection_action}
                 finish_edit_event={on_slate_title_change} action_bar_event={(id) => {}}></RenderSlateContent>
@@ -176,7 +185,7 @@ const BlockSlateContents = function(
                     if (index == 0) return array;
 
                     array.push(
-                        <BlockSlateContent note_block={x} index={index} key={x._id}
+                        <BlockSlateContent note_block={x} version={x.version} index={index} key={x._id}
                         on_selection_action={on_selection_action}
                         on_slate_title_change={on_slate_title_change}
                         on_action_bar_click={on_action_bar_click}
@@ -193,15 +202,15 @@ const BlockSlateContents = function(
 };
 
 
-const BlockSlateContent = memo(function({ note_block, index, on_slate_title_change, on_action_bar_click, on_selection_action}: 
-    {   note_block: NoteBlockType, index: number,
-        on_selection_action: (block_index:number, range: BaseRange, selected_descendents: Descendant[], whole_descendents: Descendant[]) => void,
+const BlockSlateContent = memo(function({ note_block, version, index, on_slate_title_change, on_action_bar_click, on_selection_action}: 
+    {   note_block: NoteBlockType, version: number, index: number,
+        on_selection_action: (block_index:number, range: BaseRange, selected_descendents: Descendant[], whole_descendents: Descendant[]) => NoteRowType[],
         on_slate_title_change: (id: string, index: number, value: any[]) => void,
         on_action_bar_click: (id: string) => void
     }) {
         return (
-            <div key={note_block._id} className="note-block-comp">
-                <RenderSlateContent id={note_block._id} default_data={note_block.row} index={index}
+            <div className="note-block-comp">
+                <RenderSlateContent id={note_block._id} default_data={note_block.row} index={index} version={version}
                 readOnly={false} 
                 finish_edit_event={on_slate_title_change} 
                 action_bar_event={on_action_bar_click}
@@ -209,6 +218,8 @@ const BlockSlateContent = memo(function({ note_block, index, on_slate_title_chan
                 placeholder_text="Text from gpt"></RenderSlateContent>
             </div>
         )
-}, (prev, next) => prev.note_block.version == next.note_block.version);
+}, (prev, next) => {
+    return prev.version == next.version;
+});
 
 export default withErrorBoundary(withSuspense(SideBlock, <div> Loading ... </div>), <div> Error Occur </div>);

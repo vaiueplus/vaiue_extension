@@ -54,7 +54,9 @@ export class SideBlockHelper {
         
         if (block_index == undefined || block_index < 0) return;
 
-        this.update_dict_action(this.notePage._id, block_index, operation(note_page.blocks[block_index]));
+        let new_block = operation(note_page.blocks[block_index]);
+
+        this.update_dict_action(this.notePage._id, block_index, new_block);
 
         //UpdateNotionBlock(test_account_id, notePage);
     }

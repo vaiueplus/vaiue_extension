@@ -6,21 +6,21 @@ import { HistoryEditor, withHistory } from 'slate-history'
 import { NoteRowType } from '@src/utility/note_data_struct';
 import React, { Fragment, useCallback, useMemo } from 'react'
 
-export type SelectionFunction = (block_index: number, range: BaseRange, selected_descendents: Descendant[], whole_descendents: Descendant[]) => void;
+export type SelectionFunction = (block_index: number, range: BaseRange, selected_descendents: Descendant[], whole_descendents: Descendant[]) => NoteRowType[];
 
-export default function RenderSlateContent({index, id, placeholder_text, default_data, readOnly, finish_edit_event, action_bar_event, selection_event }: 
-    {index: number, id: string, placeholder_text: string, default_data: any[], readOnly: boolean, 
+export default function RenderSlateContent({index, id, version, placeholder_text, default_data, readOnly, finish_edit_event, action_bar_event, selection_event }: 
+    {index: number, id: string, version:number, placeholder_text: string, default_data: any[], readOnly: boolean, 
       finish_edit_event: (id: string, index: number, value: Descendant[]) => void, 
       action_bar_event: (id: string) => void,
       selection_event: SelectionFunction } ) {
 
     const editor = useMemo(() => withHistory(withReact(createEditor())), []);
-    const renderLeaf = useCallback( (props: any) => <Leaf {...props} />, [])
+    const renderLeaf = useCallback( (props: any) => <Leaf {...props} />, [version])
     let value_change_flag = false;
     let descendents : Descendant[] = [];
 
     console.log("RenderSlateContent");
-
+    console.log(default_data);
     let _cacheRange: BaseRange;
     let render_addon_btn = function(i: number) {
       if (i <= 0) return <Fragment></Fragment>;
@@ -40,6 +40,9 @@ export default function RenderSlateContent({index, id, placeholder_text, default
       
       onSelectionChange={
         (h) => {
+          console.log("onSelectionChange");  
+          console.log(h);
+          
           _cacheRange = h;
         }
       }
@@ -57,9 +60,14 @@ export default function RenderSlateContent({index, id, placeholder_text, default
       onSelect={() => {
         console.log("OnSelect Done");
         console.log(_cacheRange);
-        console.log(editor.getFragment());
-        console.log(editor.children);
-        selection_event(index, _cacheRange, editor.getFragment(), editor.children);
+        // console.log(editor.getFragment());
+        // console.log(editor.children);
+
+        // editor.deselect();
+        // let high_light_children = selection_event(index, _cacheRange, editor.getFragment(), editor.children);
+
+        // if (high_light_children != undefined)
+        //   editor.children = high_light_children;
       }}
 
           placeholder={placeholder_text}  />
@@ -166,7 +174,7 @@ export function ParseItemsToSlates(blocks: NoteRowType[]) {
     if (leaf.underline) {
       children = <u>{children}</u>
     }
-
+    console.log(leaf);
     if (leaf.keyword) {
       children = <span className='slate-keyword'>{children}</span>
     }
