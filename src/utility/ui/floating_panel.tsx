@@ -116,6 +116,30 @@ export class RenderHighlightBar extends AbstractMovable {
     }
 }
 
+export class RenderSelectActionBar extends AbstractMovable {
+    private _callback: (() => void) | null = null;
+
+    constructor() {
+        super();
+        this.id = "float_select_bar";
+    }
+
+    set_callback(callback: () => void) {
+        this._callback = callback;
+    }
+
+    show(is_show: boolean) {
+        super.show(is_show);
+    }
+
+    render() {
+        return(
+            <div id={this.id}>
+                <button onClick={() => this._callback?.()}>Keyword</button>
+            </div>
+        )
+    }
+}
 
 export const MovePanelToPos = function(target: HTMLBaseElement, bound: DOMRect, x: number, y: number) {
     let body_width = document.body.clientWidth;

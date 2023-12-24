@@ -110,8 +110,6 @@ const NoteBodyComp = function({userStruct}: {userStruct: UserSSO_Struct}) {
                 return array;
               }, "");
 
-              console.log(inner_content);
-
               if (inner_content.length > 0) 
                 note_title = inner_content
 

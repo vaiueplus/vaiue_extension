@@ -21,7 +21,7 @@ Browser.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         try {
             let message : ExtensionMessageStruct = request;
-            console.log(message);
+            //console.log(message);
 
             if (message.sender == MessageSender.Tab && message.id == MessageID.ContentPaste) 
                 OnContentMessage(message.body);
@@ -70,7 +70,6 @@ const OnContentMessage = async function(content: string) {
 //#region Side Panel
 const OnSidePanelNoteMessage = async function(content: any) {
     const action : number = content.action;
-    console.log(content);
     if (action == DBAction.Update)
         UpdateSidePanelNote(content.item);
 
@@ -128,7 +127,7 @@ const GetSingleRow = function(content: string) {
 
     let row : NoteRowType = {
         type: "paragraph",
-        children: [{ text: content }, modified_paragraph]
+        children: [{ text: content }]
     };
 
     return row;

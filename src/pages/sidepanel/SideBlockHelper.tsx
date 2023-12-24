@@ -1,4 +1,4 @@
-import { RenderSideActionBar, RenderSourcePanel } from "@root/src/utility/ui/floating_panel";
+import { RenderSelectActionBar, RenderSideActionBar, RenderSourcePanel } from "@root/src/utility/ui/floating_panel";
 import { useNoteFocusStore } from "./note_zustand";
 import { MouseHelper } from "@root/src/utility/ui/mouse_helper";
 import { Combine_API } from "@root/src/utility/static_utility";
@@ -10,6 +10,7 @@ import {v4 as uuidv4} from 'uuid';
 export class SideBlockHelper {
     floatSourcePanel: RenderSourcePanel;
     floatActionbar: RenderSideActionBar;
+    selectActionBar: RenderSelectActionBar;
 
     insert_dict_action: (id: string, block: NoteBlockType) => void;
     update_dict_action: (id: string, index: number, block: NoteBlockType) => void;
@@ -18,9 +19,10 @@ export class SideBlockHelper {
     storage: StorageModel;
     notePage: NotePageType;
 
-    constructor(floatActionBar: RenderSideActionBar, renderSourcePanel: RenderSourcePanel) {
+    constructor(floatActionBar: RenderSideActionBar, renderSourcePanel: RenderSourcePanel, renderSelectActionBar : RenderSelectActionBar) {
         this.floatActionbar = floatActionBar;
         this.floatSourcePanel = renderSourcePanel;
+        this.selectActionBar = renderSelectActionBar;
     }
 
     set_parameter(notePage: NotePageType, storage: StorageModel) {
@@ -55,6 +57,7 @@ export class SideBlockHelper {
         if (block_index == undefined || block_index < 0) return;
 
         let new_block = operation(note_page.blocks[block_index]);
+        new_block.version++;
 
         this.update_dict_action(this.notePage._id, block_index, new_block);
 
@@ -72,8 +75,6 @@ export class SideBlockHelper {
     
         let new_block = GetEmptyNoteBlock();
         new_block._id = uuidv4();
-
-        console.log("add_new_row");
 
         this.insert_dict_action(this.notePage._id, new_block);
     }

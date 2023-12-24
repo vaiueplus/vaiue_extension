@@ -7,7 +7,7 @@ export class AbstractMovable {
     is_show: boolean = false;
     extension_id = "vaiue_extension";
     protected _dom: HTMLBaseElement | null = null;
-
+    
     get_extension_dom() {
         return document.querySelector("#"+ this.extension_id)?.shadowRoot?.querySelector("#"+this.id) as HTMLBaseElement;
     }
@@ -57,5 +57,9 @@ export class AbstractMovable {
         let is_mouse_within = PointBoxSection(position.x, position.y, bound.left, bound.right, bound.top, bound.bottom);
 
         if (!is_mouse_within) this.show(false);
+    }
+
+    dispose() {
+        this._dom = null;
     }
 }

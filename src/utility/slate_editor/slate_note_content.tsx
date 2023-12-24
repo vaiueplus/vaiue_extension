@@ -1,26 +1,28 @@
 'use client'
 
-import { BaseEditor, Descendant, Operation, createEditor, Selection, BaseRange } from 'slate'
+import { BaseEditor, Descendant, Operation, createEditor, Selection, BaseRange, Editor } from 'slate'
 import { Slate, Editable, withReact, ReactEditor } from 'slate-react'
 import { HistoryEditor, withHistory } from 'slate-history'
 import { NoteRowType } from '@src/utility/note_data_struct';
 import React, { Fragment, useCallback, useMemo } from 'react'
+import { action } from 'webextension-polyfill';
 
 export type SelectionFunction = (block_index: number, range: BaseRange, selected_descendents: Descendant[], whole_descendents: Descendant[]) => NoteRowType[];
+export type SelectionActionsCallback = () => {block_index: number, range: BaseRange, editor: Editor};
 
-export default function RenderSlateContent({index, id, version, placeholder_text, default_data, readOnly, finish_edit_event, action_bar_event, selection_event }: 
-    {index: number, id: string, version:number, placeholder_text: string, default_data: any[], readOnly: boolean, 
+export default function RenderSlateContent({index, id, editor, version, placeholder_text, default_data, readOnly, finish_edit_event, action_bar_event, selection_bar_event }: 
+    {index: number, id: string, editor: BaseEditor & ReactEditor & HistoryEditor, 
+      version:number, placeholder_text: string, default_data: any[], readOnly: boolean, 
       finish_edit_event: (id: string, index: number, value: Descendant[]) => void, 
       action_bar_event: (id: string) => void,
-      selection_event: SelectionFunction } ) {
+      selection_bar_event: (keyword_action: SelectionActionsCallback) => void,
+     } ) {
 
-    const editor = useMemo(() => withHistory(withReact(createEditor())), []);
+    // const editor = useMemo(() => withHistory(withReact(createEditor())), []);
     const renderLeaf = useCallback( (props: any) => <Leaf {...props} />, [version])
     let value_change_flag = false;
     let descendents : Descendant[] = [];
 
-    console.log("RenderSlateContent");
-    console.log(default_data);
     let _cacheRange: BaseRange;
     let render_addon_btn = function(i: number) {
       if (i <= 0) return <Fragment></Fragment>;
@@ -28,6 +30,7 @@ export default function RenderSlateContent({index, id, version, placeholder_text
       return <button className='note-block-btn' onClick={() => action_bar_event(id)}>+</button>;
     }
 
+    
     return (
       <Slate editor={editor}  initialValue={default_data}
       
@@ -40,9 +43,7 @@ export default function RenderSlateContent({index, id, version, placeholder_text
       
       onSelectionChange={
         (h) => {
-          console.log("onSelectionChange");  
-          console.log(h);
-          
+          // console.log(h);
           _cacheRange = h;
         }
       }
@@ -58,8 +59,8 @@ export default function RenderSlateContent({index, id, version, placeholder_text
     }
 
       onSelect={() => {
-        console.log("OnSelect Done");
-        console.log(_cacheRange);
+        // console.log("OnSelect Done");
+        // console.log(_cacheRange);
         // console.log(editor.getFragment());
         // console.log(editor.children);
 
@@ -68,7 +69,22 @@ export default function RenderSlateContent({index, id, version, placeholder_text
 
         // if (high_light_children != undefined)
         //   editor.children = high_light_children;
-      }}
+
+        selection_bar_event(() => {
+
+          let keyword_struct = {
+            block_index: index, 
+            range: _cacheRange,
+            editor: editor, 
+          };
+
+          editor.deselect();
+
+          return (keyword_struct);
+
+          });
+        }
+      }
 
           placeholder={placeholder_text}  />
           {render_addon_btn(index)}
@@ -174,7 +190,7 @@ export function ParseItemsToSlates(blocks: NoteRowType[]) {
     if (leaf.underline) {
       children = <u>{children}</u>
     }
-    console.log(leaf);
+    
     if (leaf.keyword) {
       children = <span className='slate-keyword'>{children}</span>
     }
