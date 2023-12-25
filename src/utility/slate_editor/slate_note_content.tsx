@@ -190,10 +190,10 @@ export function ParseItemsToSlates(blocks: NoteRowType[]) {
     if (leaf.underline) {
       children = <u>{children}</u>
     }
-    
+
     if (leaf.keyword) {
-      children = <span className='slate-keyword'>{children}</span>
+      children = <span id={leaf._id} className='slate-keyword'>{children}</span>
     }
-  
+
     return <span {...attributes}>{children}</span>
   }

@@ -1,6 +1,6 @@
 import { DBAction, MessageID, MessageSender, StorageID } from "@root/src/utility/static_data";
 import Browser from "webextension-polyfill";
-import { form_note_store, useNoteDictStore } from "./note_zustand";
+import { form_note_store, useNoteDictStore, useNoteFocusStore } from "./note_zustand";
 import { NoteBlockType, NotePageType } from "@root/src/utility/note_data_struct";
 import { ExtensionMessageStruct } from "@root/src/utility/data_structure";
 
@@ -78,5 +78,12 @@ export default class StorageModel {
 
     set_notes(notes: NotePageType[]) {
         useNoteDictStore.setState(() => form_note_store(notes));
+    }
+
+    set_focus_note(note_id: string) {
+        useNoteFocusStore.getState().set_id(note_id);
+
+        let messageStruct: ExtensionMessageStruct = { id: MessageID.NoteEnter, sender: MessageSender.SidePanel, body: note_id};
+        Browser.runtime.sendMessage(messageStruct);
     }
 }

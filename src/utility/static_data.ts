@@ -49,11 +49,15 @@ export const MessageSender = Object.freeze({
 
 export const MessageID = Object.freeze({
     ContentPaste : 1,
-    NoteUpdate: 2
+    ContentCreate : 2,
+
+    NoteUpdate: 20,
+    NoteEnter: 21
 });
 
 export const StorageID = Object.freeze({
-    Notes : "notes"
+    Notes : "notes",
+    LastVisitNote : "last_visit_note"
 });
 
 export const DBAction = Object.freeze({
@@ -61,4 +65,9 @@ export const DBAction = Object.freeze({
     Insert: 1,
     Update : 2,
     Delete: 3
+});
+
+export const Color = Object.freeze({
+    DarkOrange: "#d35400",
+    LightYellow: "#f1c40f",
 });

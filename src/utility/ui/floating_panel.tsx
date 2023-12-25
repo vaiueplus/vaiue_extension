@@ -92,15 +92,18 @@ export class RenderSideActionBar extends AbstractMovable {
 }
 
 export class RenderHighlightBar extends AbstractMovable {
-    private _callback: (() => void) | null = null;
+    private _create_new_callback: (() => void) | null = null;
+    private _insert_to_last_collection_callback: (() => void) | null = null;
 
     constructor() {
         super();
         this.id = "float_highlight_bar";
     }
 
-    set_callback(callback: () => void) {
-        this._callback = callback;
+    set_callback(create_new_callback: () => void, 
+                insert_to_last_collection_callback: () => void) {
+        this._create_new_callback = create_new_callback;
+        this._insert_to_last_collection_callback = insert_to_last_collection_callback;
     }
 
     show(is_show: boolean) {
@@ -110,7 +113,8 @@ export class RenderHighlightBar extends AbstractMovable {
     render() {
         return(
             <div id={this.id}>
-                <button onClick={() => this._callback?.()}>Paste</button>
+                <button onClick={() => this._create_new_callback?.()}>Create</button>
+                <button onClick={() => this._insert_to_last_collection_callback?.()}>Paste</button>
             </div>
         )
     }

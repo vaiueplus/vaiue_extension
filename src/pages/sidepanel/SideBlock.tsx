@@ -8,7 +8,7 @@ import { GetEmptyNoteBlock, GetEmptyNotePage, NoteBlockType, NotePageType, NoteR
 import { useNoteDictStore, useNoteFocusStore } from './note_zustand';
 import {v4 as uuidv4} from 'uuid';
 import { Combine_API, FormatString } from '@root/src/utility/static_utility';
-import { API } from '@root/src/utility/static_data';
+import { API, Color } from '@root/src/utility/static_data';
 import { MouseHelper } from '@root/src/utility/ui/mouse_helper';
 import { Fragment } from 'react';
 import RenderSlateContent, { SelectionActionsCallback } from '@root/src/utility/slate_editor/slate_note_content';
@@ -297,8 +297,17 @@ const BlockSlateContent = memo(function({ note_block, version, index, on_keyword
         let keyword_dom = [];
 
         const delete_keyword_action = function(key: string) {
-
             on_keyword_delete(note_block, key, editor);
+        }
+
+        const hover_keyword_tag = function(keyword_id: string, is_hover: boolean) {
+            let target_dom : HTMLBaseElement = document.querySelector("#"+keyword_id);
+
+            if (target_dom != undefined) {
+                target_dom.style.background = (is_hover) ?  Color.DarkOrange : Color.LightYellow;
+                target_dom.style.color = (is_hover) ?  "white" : "Color.LightYellow";
+
+            }
         }
 
         keywords.forEach((value, key) => {
@@ -306,7 +315,15 @@ const BlockSlateContent = memo(function({ note_block, version, index, on_keyword
             <div className='keyword_comp' key={key} 
             onClick={() => {
                 delete_keyword_action(key);
-            }} >
+            }} 
+            
+            onPointerEnter={() => {
+                hover_keyword_tag(key, true);
+            }}
+
+            onPointerLeave={() => {
+                hover_keyword_tag(key, false);
+            }}>
                 {value}
             </div>)
         }); 

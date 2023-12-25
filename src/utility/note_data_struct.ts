@@ -55,6 +55,7 @@ export type NoteParagraphType = {
     bold?: boolean,
     italic?: boolean,
     keyword?: boolean,
+    hover?: boolean,
     _id?: string // Use to group keyword together
 }
 

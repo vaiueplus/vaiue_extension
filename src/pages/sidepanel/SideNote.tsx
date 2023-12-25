@@ -13,10 +13,10 @@ import {v4 as uuidv4} from 'uuid';
 import { Combine_API, FormatString } from '@root/src/utility/static_utility';
 import { API } from '@root/src/utility/static_data';
 import { useState } from 'react';
+import StorageModel from './storge_model';
 
 
-const SidePanel = () => {
-  const theme = useStorage(exampleThemeStorage);
+const SidePanel = ({storage} : {storage: StorageModel}) => {
   const static_user : UserSSO_Struct = {
     sub: "hsinpa_browser_extension",
     name: "",
@@ -31,7 +31,7 @@ const SidePanel = () => {
       {/* <Link to="note/50">Go to the home page</Link> */}
       
       <NoteHeaderComp userStruct={static_user}></NoteHeaderComp>
-      <NoteBodyComp userStruct={static_user}></NoteBodyComp>
+      <NoteBodyComp userStruct={static_user} storage={storage}></NoteBodyComp>
     </div>
   );
 };
@@ -66,10 +66,9 @@ const NoteHeaderComp = function({userStruct}: {userStruct: UserSSO_Struct}) {
   );
 }
 
-const NoteBodyComp = function({userStruct}: {userStruct: UserSSO_Struct}) {
+const NoteBodyComp = function({userStruct, storage}: {userStruct: UserSSO_Struct, storage: StorageModel}) {
   const note_list = useNoteDictStore((state) => state.notes_array);
   const get_note_block = useNoteDictStore((state) => state.get)
-  const note_focus_set = useNoteFocusStore((state) => state.set_id);
   const note_focus_id = useNoteFocusStore((state) => state.note_id);
 
   const [is_account_valid, set_account_valid] = useState<boolean>(false);
@@ -117,7 +116,7 @@ const NoteBodyComp = function({userStruct}: {userStruct: UserSSO_Struct}) {
               return (
 
                   <Link to={ `note/${note_block?._id}` } className={note_item_class} key={note_block._id} onClick={ () => {
-                      note_focus_set(note_block?._id);
+                      storage.set_focus_note(note_block?._id);
                       redirect("/note/" + note_block?._id);
                   } }>
                   

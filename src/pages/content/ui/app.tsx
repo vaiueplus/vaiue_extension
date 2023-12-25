@@ -22,10 +22,17 @@ export default function App() {
   let highlight_text : string = "";
 
   const renderHighlightBar = new RenderHighlightBar();
+  
         renderHighlightBar.set_callback(() => { 
-          OnHighlightPasteCallback(highlight_text);
+          CreateToCollectionCallback(highlight_text)
           renderHighlightBar.show(false);
-        });
+        },
+
+        () => {
+          PasteToCollectionCallback(highlight_text)
+          renderHighlightBar.show(false);
+        }
+      );
 
   useEffect(() => {
     mouse_helper.register_mouse_up(async (pos) => {
@@ -55,14 +62,6 @@ export default function App() {
   </div>);
 }
 
-const OnHighlightPasteCallback = function(highlight_text: string) {
-  let messageStruct: ExtensionMessageStruct = { id: MessageID.ContentPaste, sender: MessageSender.Tab, body: highlight_text };
-  Browser.runtime.sendMessage(messageStruct);
-  navigator.clipboard.writeText(highlight_text);
-
-  window.getSelection().removeAllRanges();
-}
-
 const SetHighlightBarPos = async function (bar: RenderHighlightBar) {
   await DoDelayAction(100);
   const selection  : any = window.getSelection();
@@ -75,10 +74,12 @@ const SetHighlightBarPos = async function (bar: RenderHighlightBar) {
       full_text = full_text.trim();
 
   if (full_text == "") return;
-  console.log(full_text);
-  bar.show(true);
 
   const selection_bound : DOMRect = getRange.getBoundingClientRect();
+
+  if (selection_bound.left == 0 && selection_bound.right == 0) return;
+  
+  bar.show(true);
   const bar_bound = bar.get_bound();
 
   let y_offset = 20;
@@ -88,4 +89,20 @@ const SetHighlightBarPos = async function (bar: RenderHighlightBar) {
   bar.set_position(x_pos, y_pos);
 
   return full_text;
+}
+
+const PasteToCollectionCallback = function(text: string) {
+  SendTextToBackground(MessageID.ContentPaste, text);
+}
+
+const CreateToCollectionCallback = function(text: string ) {
+  SendTextToBackground(MessageID.ContentCreate, text);
+}
+
+const SendTextToBackground = function(action_id: number, highlight_text: string) {
+  let messageStruct: ExtensionMessageStruct = { id: action_id, sender: MessageSender.Tab, body: highlight_text };
+  Browser.runtime.sendMessage(messageStruct);
+  navigator.clipboard.writeText(highlight_text);
+
+  window.getSelection().removeAllRanges();
 }

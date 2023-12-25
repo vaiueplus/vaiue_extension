@@ -24,11 +24,16 @@ Browser.runtime.onMessage.addListener(
             //console.log(message);
 
             if (message.sender == MessageSender.Tab && message.id == MessageID.ContentPaste) 
-                OnContentMessage(message.body);
+                OnPasteContentMessage(message.body);
+
+            if (message.sender == MessageSender.Tab && message.id == MessageID.ContentCreate) 
+                OnCreateContentMessage(message.body);
 
             if (message.sender == MessageSender.SidePanel && message.id == MessageID.NoteUpdate) 
                 OnSidePanelNoteMessage(message.body);
 
+            if (message.sender == MessageSender.SidePanel && message.id == MessageID.NoteEnter) 
+                OnSidePanelLastNote(message.body);
 
         } catch{
 
@@ -37,30 +42,62 @@ Browser.runtime.onMessage.addListener(
 );
 
 //#region Content Page
-const OnContentMessage = async function(content: string) {
+const CreateNewNotePage = function(content: string, note_size: number) {
+    const s_block = GetSingleBlock(content);
+    let note : NotePageType = GetEmptyNotePage();
+    note._id = uuidv4();
+    note.blocks = [s_block];
+
+    note.title = "Note #"+ note_size;
+    note.date = new Date().toDateString();
+
+    return note;
+}
+
+const OnPasteContentMessage = async function(content: string) {
+    let last_visit_note = await GetLastVisitedNotes();
     let local_record = await GetLocalNotes();
+
+    let last_block_index = 0;
+    
+    if (last_visit_note != undefined && last_visit_note != "")
+        last_block_index = local_record.findIndex(x=>x._id == last_visit_note);
+
+    if (last_block_index < 0 && last_block_index >= local_record.length)
+        last_block_index = local_record.length - 1;
+
     let message : ExtensionMessageStruct = { sender: MessageSender.Background, id: MessageID.ContentPaste };
 
-    const s_block = GetSingleBlock(content);
-
     if (local_record.length <= 0) {
-        let note : NotePageType = GetEmptyNotePage();
-        note._id = uuidv4();
-        note.blocks = [s_block];
-        note.title = "Note #1";
-        note.date = new Date().toDateString();
-
-        local_record = [note];
-
-        message.action = DBAction.Create;
-        message.body = local_record;
-
+        OnCreateContentMessage(content);
+        return;
     } else {
-        local_record[0].blocks.push(s_block);
+        const s_block = GetSingleBlock(content);
+        local_record[last_block_index].blocks.push(s_block);
 
         message.action = DBAction.Insert;
-        message.body = {id: local_record[0]._id, block: s_block};
+        message.body = {id: local_record[last_block_index]._id, block: s_block};
     }
+
+    Browser.runtime.sendMessage(message);
+    Browser.storage.local.set({notes: local_record});
+}
+
+const OnCreateContentMessage = async function(content: string) {
+    let local_record = await GetLocalNotes();
+
+    let note : NotePageType = CreateNewNotePage(content, local_record.length);
+        local_record.push(note);
+
+    console.log("OnCreateContentMessage");
+    console.log(local_record);
+
+    let message : ExtensionMessageStruct = { 
+        sender: MessageSender.Background, 
+        id: MessageID.ContentPaste,
+        action: DBAction.Create,
+        body: local_record
+    };
 
     Browser.runtime.sendMessage(message);
     Browser.storage.local.set({notes: local_record});
@@ -68,6 +105,10 @@ const OnContentMessage = async function(content: string) {
 //#endregion
 
 //#region Side Panel
+const OnSidePanelLastNote = async function(content: string) {
+    Browser.storage.local.set({last_visit_note: content});
+}
+
 const OnSidePanelNoteMessage = async function(content: any) {
     const action : number = content.action;
     if (action == DBAction.Update)
@@ -101,6 +142,16 @@ const DeleteSidePanelNote = async function(note_id: string) {
 //#endregion
 
 //#region  Utility
+const GetLastVisitedNotes = async function(): Promise<string> {
+    let local_record = await Browser.storage.local.get(StorageID.LastVisitNote);
+
+    if (StorageID.LastVisitNote in local_record) {
+        return local_record[StorageID.LastVisitNote];
+    }
+
+    return "";
+}
+
 const GetLocalNotes = async function() {
     let local_record = await Browser.storage.local.get(StorageID.Notes);
     let notes: NotePageType[] = [];

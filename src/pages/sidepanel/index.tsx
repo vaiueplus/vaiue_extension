@@ -21,7 +21,7 @@ const createRouter = function (storage: StorageModel) {
   return createMemoryRouter([
     {
       path: "/",
-      element: <SideNote />,
+      element: <SideNote storage={storage}/>,
     },
 
     {

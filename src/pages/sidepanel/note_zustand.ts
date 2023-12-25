@@ -114,6 +114,8 @@ export const useNoteFocusStore = create<NoteFocusZusStore>(
         set( () => {
             return ({...get(), note_id: id}) 
         });
+
+        
     },
 
     //Note Block
