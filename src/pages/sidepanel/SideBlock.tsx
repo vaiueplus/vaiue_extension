@@ -222,8 +222,7 @@ return (
             on_keyword_delete={on_keyword_delete}
             on_selection_bar_event={on_selection_bar_event}
             on_slate_title_change={on_slate_title_change}
-            on_action_bar_click={on_action_bar_click}>
-        </BlockSlateContents>
+            on_action_bar_click={on_action_bar_click} />
 
         <button className="button is-primary is-light" onClick={add_new_row}>Add+</button>
 
@@ -239,7 +238,6 @@ return (
 const BlockSlateContents = function(
         {note_page, on_keyword_delete, on_slate_title_change, on_action_bar_click, on_selection_bar_event} : 
         {   note_page: NotePageType,
-            // children?: ReactNode ,
             on_keyword_delete: (note_block: NoteBlockType, keyword_id: string, editor: Editor) => void,
             on_selection_bar_event: (keyword_action: SelectionActionsCallback) => void,
             on_slate_title_change: (id: string, index: number, value: any[]) => void,
@@ -301,11 +299,11 @@ const BlockSlateContent = memo(function({ note_block, version, index, on_keyword
         }
 
         const hover_keyword_tag = function(keyword_id: string, is_hover: boolean) {
-            let target_dom : HTMLBaseElement = document.querySelector("#"+keyword_id);
+            let target_dom : HTMLElement = document.getElementById(keyword_id.substring(0, 5));
 
             if (target_dom != undefined) {
                 target_dom.style.background = (is_hover) ?  Color.DarkOrange : Color.LightYellow;
-                target_dom.style.color = (is_hover) ?  "white" : "Color.LightYellow";
+                target_dom.style.color = (is_hover) ?  "white" : "black";
 
             }
         }
