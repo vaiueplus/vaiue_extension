@@ -46,7 +46,7 @@ dependencies:
     version: 0.10.0
   zustand:
     specifier: ^4.4.7
-    version: 4.4.7(@types/react@18.2.37)(immer@10.0.3)(react@18.2.0)
+    version: 4.4.7(@types/react@18.2.47)(immer@10.0.3)(react@18.2.0)
 
 devDependencies:
   '@commitlint/cli':
@@ -68,8 +68,8 @@ devDependencies:
     specifier: 20.8.10
     version: 20.8.10
   '@types/react':
-    specifier: 18.2.37
-    version: 18.2.37
+    specifier: 18.2.47
+    version: 18.2.47
   '@types/react-dom':
     specifier: 18.2.14
     version: 18.2.14
@@ -1201,11 +1201,11 @@ packages:
   /@types/react-dom@18.2.14:
     resolution: {integrity: sha512-V835xgdSVmyQmI1KLV2BEIUgqEuinxp9O4G6g3FqO/SqLac049E53aysv0oEFD2kHfejeKU+ZqL2bcFWj9gLAQ==}
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.47
     dev: true
 
-  /@types/react@18.2.37:
-    resolution: {integrity: sha512-RGAYMi2bhRgEXT3f4B92WTohopH6bIXw05FuGlmJEnv/omEn190+QYEIYxIAuIBdKgboYYdVved2p1AxZVQnaw==}
+  /@types/react@18.2.47:
+    resolution: {integrity: sha512-xquNkkOirwyCgoClNk85BjP+aqnIS+ckAJ8i37gAbDs14jfW/J23f2GItAf33oiUPQnqNMALiFeoM9Y5mbjpVQ==}
     dependencies:
       '@types/prop-types': 15.7.9
       '@types/scheduler': 0.16.4
@@ -5871,7 +5871,7 @@ packages:
     engines: {node: '>=12.20'}
     dev: true
 
-  /zustand@4.4.7(@types/react@18.2.37)(immer@10.0.3)(react@18.2.0):
+  /zustand@4.4.7(@types/react@18.2.47)(immer@10.0.3)(react@18.2.0):
     resolution: {integrity: sha512-QFJWJMdlETcI69paJwhSMJz7PPWjVP8Sjhclxmxmxv/RYI7ZOvR5BHX+ktH0we9gTWQMxcne8q1OY8xxz604gw==}
     engines: {node: '>=12.7.0'}
     peerDependencies:
@@ -5886,7 +5886,7 @@ packages:
       react:
         optional: true
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.47
       immer: 10.0.3
       react: 18.2.0
       use-sync-external-store: 1.2.0(react@18.2.0)
