@@ -106,7 +106,7 @@ hr {
     flex-direction: column;
     align-items: stretch;
     gap: 2em;          
-    padding: 1em 1em 0em 1em;
+    padding: 1em 1.5em 0em 1.5em;
   
     div[role="textbox"] {
 
@@ -126,6 +126,12 @@ hr {
             position: absolute;
             right: 0;
             bottom: 0;
+        }
+
+        .block-draggable {
+            position: absolute;
+            left: -10px;
+            top: 0;
         }
 
         .keyword_container {

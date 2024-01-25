@@ -291,6 +291,7 @@ const BlockSlateContent = memo(function({ note_block, version, index, on_keyword
     }) {
         const editor = useMemo(() => withHistory(withReact(createEditor())), []);
 
+        let cache_draggable_dom : HTMLBaseElement = null;
         let keywords = SlateUtility.get_keyword_tags(note_block.row);
         let keyword_dom = [];
 
@@ -329,6 +330,28 @@ const BlockSlateContent = memo(function({ note_block, version, index, on_keyword
 
         return (
             <div className="note-block-comp">
+                <div className='block-draggable' onMouseDown={(e:any) => {
+                    let m : HTMLDivElement = e.target;
+
+                    let parent_node = m.parentNode.parentNode;
+                    cache_draggable_dom = m.parentNode.cloneNode(true) as any;
+                    
+                    cache_draggable_dom.classList.add('block-draggable-component')
+
+                    console.log(cache_draggable_dom.classList);
+                    
+
+                    parent_node.append(cache_draggable_dom);
+                }}
+                onMouseUp={() => {
+                    console.log("Drag end");
+
+                    cache_draggable_dom.remove();
+                    cache_draggable_dom = null
+                }}
+
+                >-</div>
+
                 <RenderSlateContent id={note_block._id} default_data={note_block.row} editor={editor}
                 index={index} version={version}
                 readOnly={false} 

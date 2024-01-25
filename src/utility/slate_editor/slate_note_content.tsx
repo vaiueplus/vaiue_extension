@@ -1,5 +1,3 @@
-'use client'
-
 import { BaseEditor, Descendant, Operation, createEditor, Selection, BaseRange, Editor } from 'slate'
 import { Slate, Editable, withReact, ReactEditor } from 'slate-react'
 import { HistoryEditor, withHistory } from 'slate-history'
