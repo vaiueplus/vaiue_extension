@@ -57,7 +57,7 @@ const NoteHeaderComp = function({userStruct}: {userStruct: UserSSO_Struct}) {
 
   return (
       <div className="note-header-comp">
-          <h2>Notes</h2>
+          <h2>Draft</h2>
           <input className="input" type='text' placeholder="Search..."></input>
           <section className="note-header-actions">
               <button className="button is-primary" onClick={create_new_note}>Add</button>
@@ -81,7 +81,7 @@ const NoteBodyComp = function({userStruct, storage}: {userStruct: UserSSO_Struct
       if (!is_login)
           return <div className="note-body-login-require"></div>;
   }
-  
+
   return (
       <div className="note-body-comp">
 
@@ -89,8 +89,8 @@ const NoteBodyComp = function({userStruct, storage}: {userStruct: UserSSO_Struct
       
           <div className="note-item-container">
           {
-              note_list.map(x=> {
-                  let note_block = get_note_block(x);
+            [...note_list].reverse().map(x=> {
+              let note_block = get_note_block(x);
 
               if (note_block == undefined) return;
               
