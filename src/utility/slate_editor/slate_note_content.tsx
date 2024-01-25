@@ -22,9 +22,7 @@ export default function RenderSlateContent({index, id, editor, version, placehol
     let descendents : Descendant[] = [];
 
     let _cacheRange: BaseRange;
-    let render_addon_btn = function(i: number) {
-      if (i <= 0) return <Fragment></Fragment>;
-      
+    let render_addon_btn = function(i: number) {      
       return <button className='note-block-btn' onClick={() => action_bar_event(id)}>+</button>;
     }
 

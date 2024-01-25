@@ -6,8 +6,6 @@ import { FloatActionBarState, UserSSO_Struct } from '@src/utility/data_structure
 import { useEffect } from 'react';
 import { GetEmptyNoteBlock, GetEmptyNotePage, NoteBlockType, NotePageType, NoteRowType } from '@root/src/utility/note_data_struct';
 import { useNoteDictStore, useNoteFocusStore } from './note_zustand';
-import {v4 as uuidv4} from 'uuid';
-import { Combine_API, FormatString } from '@root/src/utility/static_utility';
 import { API, Color } from '@root/src/utility/static_data';
 import { MouseHelper } from '@root/src/utility/ui/mouse_helper';
 import { Fragment } from 'react';
@@ -17,13 +15,13 @@ import { Link, useParams } from 'react-router-dom';
 import StorageModel from './storge_model';
 import React from 'react';
 import { memo } from 'react';
-import { ReactNode } from 'react';
 import { SideBlockHelper } from './SideBlockHelper';
 import { BaseRange, Descendant, Editor, createEditor } from 'slate';
 import { SlateUtility } from '@root/src/utility/slate_editor/slate_utility';
 import { useMemo } from 'react';
 import { withHistory } from 'slate-history';
 import { withReact } from 'slate-react';
+import { an } from 'vitest/dist/reporters-OH1c16Kq';
 
 let floatActionbar = new RenderSideActionBar()
 let floatSourcePanel = new RenderSourcePanel()
@@ -31,13 +29,13 @@ let floatSelectBar = new RenderSelectActionBar()
 
 const sideBlockHelper = new SideBlockHelper(floatActionbar, floatSourcePanel, floatSelectBar);
 
-
 const SideBlock = ({storage} : {storage: StorageModel}) => {
     let { page_id } = useParams();
 
     const insert_block_action = useNoteDictStore((state) => state.insert_block);
     const update_block_action = useNoteDictStore((state) => state.update_block);
     const delete_block_action = useNoteDictStore((state) => state.delete_block);
+    const set_page_action = useNoteDictStore((state) => state.set);
 
     let notes_dict = useNoteDictStore((state) => state.notes_dict);
     let noteFullPage = notes_dict[page_id];
@@ -151,14 +149,10 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
             return;
         } 
 
-        console.log(selection_bound)
-
         let y_offset = -35;
         let x_pos = selection_bound.left + (selection_bound.width * 0.5) - (bar_bound.width * 0.5);
         let y_pos = (selection_bound.top + y_offset);
         
-        console.log(y_pos)
-
         ShowFloatingBoard(floatSelectBar, x_pos, y_pos);
       
         floatSelectBar.set_callback(() => {
@@ -204,7 +198,11 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
 
             return new_block;
         });
+    }
 
+    const on_title_change = function(new_title: string) {
+        noteFullPage.title = new_title;
+        set_page_action(noteFullPage)
     }
 //#endregion
 
@@ -216,7 +214,26 @@ const add_new_row = function() {
 return (
     <div className="preview-comp">
         <Link className='button' to="/">Back</Link>
-        <h2>{noteFullPage.title}</h2>
+        <h2 onClick={(e) => {
+            let title_dom : any = e.target;
+            const innerDOM_value : string = "" + title_dom.innerHTML;
+            title_dom.innerHTML = (`<input type='text' value='${innerDOM_value}'></input>`);
+            
+            const h_dom_input : HTMLInputElement = title_dom.querySelector("input");
+
+            if (h_dom_input != null) {
+                h_dom_input.focus();
+                h_dom_input.setSelectionRange(0, innerDOM_value.length);
+
+                //Resume
+                h_dom_input.onblur = () => {
+                    title_dom.innerHTML = h_dom_input.value;
+                    on_title_change(""+title_dom.innerHTML);
+                }
+            }
+        }
+    }
+        >{noteFullPage.title}</h2>
 
         <BlockSlateContents note_page={noteFullPage} 
             on_keyword_delete={on_keyword_delete}
@@ -247,33 +264,25 @@ const BlockSlateContents = function(
     if (note_page == undefined) return <div></div>
 
     let initValue : React.JSX.Element[] = []; 
-    const editor = useMemo(() => withHistory(withReact(createEditor())), []);
+    note_page.blocks.reduce((array, x, index) => {
+
+        array.push(
+            <BlockSlateContent note_block={x} version={x.version} index={index} key={x._id}
+            on_keyword_delete={on_keyword_delete}
+            on_selection_bar_event={on_selection_bar_event}
+            on_slate_title_change={on_slate_title_change}
+            on_action_bar_click={on_action_bar_click}
+            />
+        );
+
+        return array;
+    }, initValue)
 
     return (
         <div>
-            <div key={note_page.blocks[0]._id} className="note-block-comp">
-                <RenderSlateContent index={0} editor={editor} version={note_page.blocks[0].version} id={note_page.blocks[0]._id} default_data={note_page.blocks[0].row}
-                readOnly={false} placeholder_text="Topic . . ."
-                selection_bar_event={(x) => {}}
-                finish_edit_event={on_slate_title_change} action_bar_event={(id) => {}}></RenderSlateContent>
-            </div>
-
             <Fragment>
             {
-                note_page.blocks.reduce((array, x, index) => {
-                    if (index == 0) return array;
-
-                    array.push(
-                        <BlockSlateContent note_block={x} version={x.version} index={index} key={x._id}
-                        on_keyword_delete={on_keyword_delete}
-                        on_selection_bar_event={on_selection_bar_event}
-                        on_slate_title_change={on_slate_title_change}
-                        on_action_bar_click={on_action_bar_click}
-                        />
-                    );
-
-                    return array;
-                }, initValue)
+                initValue
             }
             
             </Fragment>
@@ -290,8 +299,6 @@ const BlockSlateContent = memo(function({ note_block, version, index, on_keyword
         on_selection_bar_event: (keyword_action: SelectionActionsCallback) => void,
     }) {
         const editor = useMemo(() => withHistory(withReact(createEditor())), []);
-
-        let cache_draggable_dom : HTMLBaseElement = null;
         let keywords = SlateUtility.get_keyword_tags(note_block.row);
         let keyword_dom = [];
 
@@ -333,24 +340,16 @@ const BlockSlateContent = memo(function({ note_block, version, index, on_keyword
                 <div className='block-draggable' onMouseDown={(e:any) => {
                     let m : HTMLDivElement = e.target;
 
-                    let parent_node = m.parentNode.parentNode;
-                    cache_draggable_dom = m.parentNode.cloneNode(true) as any;
+                    // let parent_node = m.parentNode.parentNode;
+                    // cache_draggable_dom = m.parentNode.cloneNode(true) as any;
                     
-                    cache_draggable_dom.classList.add('block-draggable-component')
+                    // cache_draggable_dom.classList.add('block-draggable-component')
 
-                    console.log(cache_draggable_dom.classList);
+                    // console.log(cache_draggable_dom.classList);
                     
 
-                    parent_node.append(cache_draggable_dom);
-                }}
-                onMouseUp={() => {
-                    console.log("Drag end");
-
-                    cache_draggable_dom.remove();
-                    cache_draggable_dom = null
-                }}
-
-                >-</div>
+                    // parent_node.append(cache_draggable_dom);
+                }}></div>
 
                 <RenderSlateContent id={note_block._id} default_data={note_block.row} editor={editor}
                 index={index} version={version}
