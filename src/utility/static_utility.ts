@@ -64,3 +64,5 @@ export function PointBoxSection(x: number, y : number, left: number, right: numb
     y < down && y > top
   );
 }
+
+export const Clamp = (val, min, max) => Math.min(Math.max(val, min), max)

@@ -2,7 +2,7 @@ import '@pages/sidepanel/SideNote.scss';
 import '@pages/sidepanel/SlateStyle.scss';
 import withSuspense from '@src/shared/hoc/withSuspense';
 import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
-import { FloatActionBarState, UserSSO_Struct } from '@src/utility/data_structure';
+import { FloatActionBarState, HighlightActionBarState, UserSSO_Struct } from '@src/utility/data_structure';
 import { useEffect } from 'react';
 import { GetEmptyNoteBlock, GetEmptyNotePage, NoteBlockType, NotePageType, NoteRowType } from '@root/src/utility/note_data_struct';
 import { useNoteDictStore, useNoteFocusStore } from './note_zustand';
@@ -35,6 +35,8 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
     const insert_block_action = useNoteDictStore((state) => state.insert_block);
     const update_block_action = useNoteDictStore((state) => state.update_block);
     const delete_block_action = useNoteDictStore((state) => state.delete_block);
+    const offset_block_action = useNoteDictStore((state) => state.offset);
+
     const set_page_action = useNoteDictStore((state) => state.set);
 
     let notes_dict = useNoteDictStore((state) => state.notes_dict);
@@ -107,10 +109,20 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
     }
 
     const on_action_bar_state_click = function(block_id:string, state: FloatActionBarState) {
-        if (state == FloatActionBarState.AI_Source) {
-            ShowFloatingBoard(floatSourcePanel, MouseHelper.x, MouseHelper.y);
-            floatActionbar.show(false);
+        // if (state == FloatActionBarState.AI_Source) {
+        //     ShowFloatingBoard(floatSourcePanel, MouseHelper.x, MouseHelper.y);
+        //     floatActionbar.show(false);
+        // }
+
+        if (state == FloatActionBarState.Move_Down) {
+            offset_block_action(page_id, block_id, 1);
         }
+
+        if (state == FloatActionBarState.Move_Up) {
+            offset_block_action(page_id, block_id, -1);
+        }
+
+        floatActionbar.show(false);
     }
 
     const on_selection_action = function(block_index: number, range: BaseRange, selected_descendents: Descendant[], whole_descendents: Descendant[]) {
@@ -149,13 +161,13 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
             return;
         } 
 
-        let y_offset = -35;
+        let y_offset = -90;
         let x_pos = selection_bound.left + (selection_bound.width * 0.5) - (bar_bound.width * 0.5);
         let y_pos = (selection_bound.top + y_offset);
         
         ShowFloatingBoard(floatSelectBar, x_pos, y_pos);
       
-        floatSelectBar.set_callback(() => {
+        floatSelectBar.set_callback((action_type: HighlightActionBarState) => {
             const keyword_struct = keyword_action();
             floatSelectBar.show(false);
 

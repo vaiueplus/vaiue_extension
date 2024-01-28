@@ -6,30 +6,23 @@ import { MouseHelper } from '@root/src/utility/ui/mouse_helper';
 import { useEffect } from 'react';
 import Browser from 'webextension-polyfill';
 import { RuntimePort } from './runtime_port';
-
-// window.addEventListener("mouseup", (e) => {
-//   const selection  : any = window.getSelection();
-//   const getRange = selection.getRangeAt(0); 
-
-//   console.log(getRange.getBoundingClientRect());
-
-//   Browser.runtime.sendMessage({message: 'hi'});
-// });
+import { create_note_row_from_selection } from '../clipboard_tools';
+import { NoteRowType } from '@root/src/utility/note_data_struct';
 
 export default function App() {
   let port_helper = new RuntimePort(StorageID.Notes);
   let mouse_helper = new MouseHelper();
-  let highlight_text : string = "";
+  let highlight_nodes : NoteRowType[] = [];
 
   const renderHighlightBar = new RenderHighlightBar();
   
         renderHighlightBar.set_callback(() => { 
-          CreateToCollectionCallback(highlight_text)
+          CreateToCollectionCallback(highlight_nodes)
           renderHighlightBar.show(false);
         },
 
         () => {
-          PasteToCollectionCallback(highlight_text)
+          PasteToCollectionCallback(highlight_nodes)
           renderHighlightBar.show(false);
         }
       );
@@ -39,12 +32,12 @@ export default function App() {
       let has_connection = await port_helper.check_connection();
 
       if (has_connection)
-        highlight_text = await SetHighlightBarPos(renderHighlightBar);
+        highlight_nodes = await SetHighlightBarPos(renderHighlightBar);
     });
 
     mouse_helper.register_changes(async () => {
       if (renderHighlightBar.is_show)
-          highlight_text = await SetHighlightBarPos(renderHighlightBar);
+          highlight_nodes = await SetHighlightBarPos(renderHighlightBar);
     });
 
     mouse_helper.register_mouse_down((pos) => {
@@ -70,6 +63,14 @@ const SetHighlightBarPos = async function (bar: RenderHighlightBar) {
 
   const getRange = selection.getRangeAt(0); 
 
+  var fragment = getRange.cloneContents()
+  var imgs = fragment.querySelectorAll('img');
+  let images_source: string[] = [];
+
+  for (let i = 0; i < imgs.length; i++) {
+    images_source.push(imgs[i].src);
+  }
+  
   let full_text : string = selection.toString();
       full_text = full_text.trim();
 
@@ -87,22 +88,29 @@ const SetHighlightBarPos = async function (bar: RenderHighlightBar) {
   let y_pos = (selection_bound.bottom + y_offset);
 
   bar.set_position(x_pos, y_pos);
-
-  return full_text;
+  
+  return create_note_row_from_selection(full_text, images_source);
 }
 
-const PasteToCollectionCallback = function(text: string) {
-  SendTextToBackground(MessageID.ContentPaste, text);
+const PasteToCollectionCallback = function(nodes: NoteRowType[]) {
+  SendTextToBackground(MessageID.ContentPaste, nodes);
 }
 
-const CreateToCollectionCallback = function(text: string ) {
-  SendTextToBackground(MessageID.ContentCreate, text);
+const CreateToCollectionCallback = function(nodes: NoteRowType[] ) {
+  SendTextToBackground(MessageID.ContentCreate, nodes);
 }
 
-const SendTextToBackground = function(action_id: number, highlight_text: string) {
-  let messageStruct: ExtensionMessageStruct = { id: action_id, sender: MessageSender.Tab, body: highlight_text };
+const SendTextToBackground = function(action_id: number, nodes: NoteRowType[]) {  
+  let messageStruct: ExtensionMessageStruct = { 
+    id: action_id, sender: MessageSender.Tab, body: nodes, 
+    host: window.location.host, source: window.location.href
+  };
+
   Browser.runtime.sendMessage(messageStruct);
-  navigator.clipboard.writeText(highlight_text);
+
+  let text = nodes.find(x=>x.type == 'paragraph')?.children[0].text;
+  if (text != null)
+    navigator.clipboard.writeText(text);
 
   window.getSelection().removeAllRanges();
 }

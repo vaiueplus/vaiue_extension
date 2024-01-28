@@ -28,7 +28,8 @@ export interface LearningResourceInterface {
     learning_tags: string[]
 }
 
-export enum FloatActionBarState {Image, AI_Source}
+export enum FloatActionBarState {Image, AI_Source, Move_Up, Move_Down}
+export enum HighlightActionBarState {Keyword, DoubleCheck, Translation}
 
 //#region User Account
 export interface UserSSO_Struct {
@@ -47,5 +48,8 @@ export interface ExtensionMessageStruct {
     sender: number,
     action? : number,
     body?: any,
+    
+    source?: string,
+    host?: string,
 }
 //#endregion

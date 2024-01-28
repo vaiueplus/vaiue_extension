@@ -2,6 +2,7 @@ import { List , Map } from 'immutable';
 import {create} from 'zustand';
 import { NoteBlockType, NoteRowType, NotePageType } from '@src/utility/note_data_struct';
 import {produce} from "immer"
+import { Clamp } from '@root/src/utility/static_utility';
 
 export type NotePageZusStore = {
     notes_dict:  { [id: string] : NotePageType; },
@@ -12,6 +13,7 @@ export type NotePageZusStore = {
     //Page
     set: (note: NotePageType) => void,
     set_array: (notes: NotePageType[]) => void,
+    offset:(id:string, block_id: string, offset: number) => void,
 
     insert_block:(id: string, block: NoteBlockType) => void,
     update_block:(id: string, index: number, block: NoteBlockType) => void,
@@ -57,6 +59,21 @@ export const useNoteDictStore = create<NotePageZusStore>( (set, get) => ({
 
             state.notes_dict[note._id] = note;
         }));
+    },
+    
+    offset(id, block_id, offset) {
+        set( produce( (state : NotePageZusStore) => {
+            let note = state.notes_dict[id];
+            let index = note.blocks.findIndex(x => x._id == block_id);
+            let block = note.blocks[index];
+
+            let new_index = Clamp(index + offset, 0, state.notes_array.length - 1);
+
+            note.blocks.splice(index, 1);
+            note.blocks.splice(new_index, 0, block);
+
+            state.notes_dict[id].blocks = note.blocks;
+        })); 
     },
 
     insert_block(id: string, block: NoteBlockType) {

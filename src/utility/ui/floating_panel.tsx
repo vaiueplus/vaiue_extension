@@ -2,7 +2,7 @@ import { AbstractMovable } from "./movable_view";
 import { Vector2 } from "@src/utility/VectorMath";
 import { MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { PointBoxSection } from "@src/utility/static_utility";
-import { FloatActionBarState } from "@src/utility/data_structure";
+import { FloatActionBarState, HighlightActionBarState } from "@src/utility/data_structure";
 
 export class RenderSourcePanel extends AbstractMovable {
     _callback: ((id: string, link:string) => void) | null = null;
@@ -83,9 +83,9 @@ export class RenderSideActionBar extends AbstractMovable {
     render() {
         return(
             <div id={this.id}>
-                <button onClick={() => this._callback?.(this._block_id, FloatActionBarState.Image)}>Image</button>
+                <button onClick={() => this._callback?.(this._block_id, FloatActionBarState.Move_Up)}>Up</button>
                 <hr></hr>
-                <button onClick={() => this._callback?.(this._block_id, FloatActionBarState.AI_Source)}>AI tool</button>
+                <button onClick={() => this._callback?.(this._block_id, FloatActionBarState.Move_Down)}>Down</button>
             </div>
         )
     }
@@ -121,14 +121,14 @@ export class RenderHighlightBar extends AbstractMovable {
 }
 
 export class RenderSelectActionBar extends AbstractMovable {
-    private _callback: (() => void) | null = null;
+    private _callback: ((action_type: HighlightActionBarState) => void) | null = null;
 
     constructor() {
         super();
         this.id = "float_select_bar";
     }
 
-    set_callback(callback: () => void) {
+    set_callback(callback: (action_type: HighlightActionBarState) => void) {
         this._callback = callback;
     }
 
@@ -139,7 +139,9 @@ export class RenderSelectActionBar extends AbstractMovable {
     render() {
         return(
             <div id={this.id}>
-                <button onClick={() => this._callback?.()}>Keyword</button>
+                <button onClick={() => this._callback?.(HighlightActionBarState.Keyword)}>Keyword</button>
+                <button onClick={() => this._callback?.(HighlightActionBarState.DoubleCheck)}>To Check</button>
+                <button onClick={() => this._callback?.(HighlightActionBarState.Translation)}>Translate</button>
             </div>
         )
     }

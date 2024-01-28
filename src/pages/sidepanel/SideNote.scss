@@ -130,8 +130,9 @@ hr {
 
         .block-draggable {
             position: absolute;
-            left: -10px;
-            top: 0;
+            top: 50%;
+            left: 0%;
+            transform: translate(-50%, -50%);
         }
 
         .keyword_container {

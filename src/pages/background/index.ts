@@ -33,7 +33,7 @@ Browser.runtime.onMessage.addListener(
                 OnSidePanelNoteMessage(message.body);
 
             if (message.sender == MessageSender.SidePanel && message.id == MessageID.NoteEnter) 
-                OnSidePanelLastNote(message.body);
+                OnSidePanelLastNote(message.body)
 
         } catch{
 
@@ -54,7 +54,7 @@ const CreateNewNotePage = function(content: string, note_size: number) {
     return note;
 }
 
-const OnPasteContentMessage = async function(content: string) {
+const OnPasteContentMessage = async function(contents: NoteRowType[]) {
     let last_visit_note = await GetLastVisitedNotes();
     let local_record = await GetLocalNotes();
 
@@ -69,10 +69,11 @@ const OnPasteContentMessage = async function(content: string) {
     let message : ExtensionMessageStruct = { sender: MessageSender.Background, id: MessageID.ContentPaste };
 
     if (local_record.length <= 0) {
-        OnCreateContentMessage(content);
+        OnCreateContentMessage(contents);
         return;
     } else {
-        const s_block = GetSingleBlock(content);
+        const s_block = GetSingleBlock("");
+        s_block.row = contents;
         local_record[last_block_index].blocks.push(s_block);
 
         message.action = DBAction.Insert;
@@ -83,14 +84,12 @@ const OnPasteContentMessage = async function(content: string) {
     Browser.storage.local.set({notes: local_record});
 }
 
-const OnCreateContentMessage = async function(content: string) {
+const OnCreateContentMessage = async function(contents: NoteRowType[]) {
     let local_record = await GetLocalNotes();
 
-    let note : NotePageType = CreateNewNotePage(content, local_record.length);
+    let note : NotePageType = CreateNewNotePage("", local_record.length);
+        note.blocks[0].row = contents;
         local_record.push(note);
-
-    console.log("OnCreateContentMessage");
-    console.log(local_record);
 
     let message : ExtensionMessageStruct = { 
         sender: MessageSender.Background, 
