@@ -55,6 +55,8 @@ const CreateNewNotePage = function(content: string, note_size: number) {
 }
 
 const OnPasteContentMessage = async function(contents: NoteRowType[]) {
+
+    console.log("OnPasteContentMessage", contents)
     let last_visit_note = await GetLastVisitedNotes();
     let local_record = await GetLocalNotes();
 

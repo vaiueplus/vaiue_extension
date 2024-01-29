@@ -13,7 +13,8 @@ export function create_note_row_from_selection(text:string, images: string[]) : 
     images.forEach(image_url => {
         rows.push({
             type: 'image',
-            children: [{'text':image_url }]
+            url: image_url,
+            children: [{'text':'' }]
         });
     });
 

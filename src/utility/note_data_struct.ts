@@ -44,7 +44,7 @@ export type NoteSource = {
 export type NoteRowType = {
     type: "image" | "paragraph",
     children: NoteParagraphType[],
-    content?: string,
+    url?: string,
     keyword?: NoteKeywordType[],
 }
 

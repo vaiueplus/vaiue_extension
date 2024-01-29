@@ -17,7 +17,13 @@ export const EventID = Object.freeze({
     Scroll : "event@scroll",
     Resize : "event@resize",
     PageChange : "event@changes",
+});
 
+export const LangaugeCode = Object.freeze({
+    TraditionalChinese : "zh",
+    SimplifiedChinese : 'cn',
+    English: "en",
+    Korea: 'ko'
 });
 
 export const NoteSourceIcon = Object.freeze({

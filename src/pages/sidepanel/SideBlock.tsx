@@ -9,7 +9,7 @@ import { useNoteDictStore, useNoteFocusStore } from './note_zustand';
 import { API, Color } from '@root/src/utility/static_data';
 import { MouseHelper } from '@root/src/utility/ui/mouse_helper';
 import { Fragment } from 'react';
-import RenderSlateContent, { SelectionActionsCallback } from '@root/src/utility/slate_editor/slate_note_content';
+import RenderSlateContent, { SelectionActionsCallback, SelectionCallbackType } from '@root/src/utility/slate_editor/slate_note_content';
 import { RenderSideActionBar, RenderSourcePanel, RenderSelectActionBar,  ShowFloatingBoard } from '@root/src/utility/ui/floating_panel';
 import { Link, useParams } from 'react-router-dom';
 import StorageModel from './storge_model';
@@ -125,13 +125,18 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         floatActionbar.show(false);
     }
 
-    const on_selection_action = function(block_index: number, range: BaseRange, selected_descendents: Descendant[], whole_descendents: Descendant[]) {
-        let block_id = noteFullPage.blocks[block_index]._id;
-        const new_keyword_rows = SlateUtility.create_highLight_rows(noteFullPage.blocks[block_index].row, range, selected_descendents, whole_descendents);
+    const trigger_keyword_action = function(selection_type: SelectionCallbackType ) {
 
-        if (new_keyword_rows == undefined) return undefined;
+            let block_index = selection_type.block_index;
+            let range = selection_type.range;
+            let whole_descendents = selection_type.editor.children;
 
-        sideBlockHelper.change_block_value(block_id, (block: NoteBlockType) => {
+            let block_id = noteFullPage.blocks[block_index]._id;
+            const new_keyword_rows = SlateUtility.create_highLight_rows(range, whole_descendents);
+
+            if (new_keyword_rows == undefined) return undefined;
+
+            sideBlockHelper.change_block_value(block_id, (block: NoteBlockType) => {
             let new_block = {...block};
 
                 new_block.row = new_keyword_rows
@@ -143,7 +148,18 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         return new_keyword_rows;
     }
 
-    const on_selection_bar_event = function(keyword_action: SelectionActionsCallback) {
+    const trigger_translation_action = function(selection_type: SelectionCallbackType) {
+        let selected_descendents = selection_type.editor.getFragment();
+        let range = selection_type.range;
+        let whole_descendents = selection_type.editor.children;
+
+        const new_keyword_rows = SlateUtility.create_highLight_rows(range, whole_descendents);
+        const concat_string = SlateUtility.concat_node_row_string(new_keyword_rows);
+
+        console.log("Translate : " + concat_string);
+    }
+
+    const on_selection_bar_event = function(selection_callback: SelectionActionsCallback) {
         const selection : any = window.getSelection();
 
         if (selection.rangeCount <= 0) return;
@@ -168,18 +184,25 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         ShowFloatingBoard(floatSelectBar, x_pos, y_pos);
       
         floatSelectBar.set_callback((action_type: HighlightActionBarState) => {
-            const keyword_struct = keyword_action();
-            floatSelectBar.show(false);
+            const keyword_struct = selection_callback();
 
-            let high_light_children = on_selection_action(keyword_struct.block_index, 
-                                                            keyword_struct.range,
-                                                            keyword_struct.editor.getFragment(), 
-                                                            keyword_struct.editor.children);
 
-            if (high_light_children != undefined)
-                keyword_struct.editor.children = high_light_children;                            
+            if (action_type == HighlightActionBarState.Keyword) {
+                floatSelectBar.show(false);
+
+                let high_light_children = trigger_keyword_action(keyword_struct);
+    
+                if (high_light_children != undefined)
+                    keyword_struct.editor.children = high_light_children;    
+            }
+
+            if (action_type == HighlightActionBarState.Translation) {
+                trigger_translation_action(keyword_struct);
+            }
         });
     }
+
+    
 
     const on_source_link_set = function(id: string, link: string) {
         sideBlockHelper.change_block_value(id, (block: NoteBlockType) => {

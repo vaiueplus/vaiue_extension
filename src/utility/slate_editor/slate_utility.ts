@@ -75,8 +75,7 @@ export class SlateUtility {
         return [paragraph];
     }
 
-    static create_highLight_rows(
-        note_rows: NoteRowType[], range: BaseRange, selected_descendents: any[], whole_descendents: any[]) {
+    static create_highLight_rows(range: BaseRange, whole_descendents: any[]) {
 
         if (range == undefined) return null;
 
@@ -228,6 +227,23 @@ export class SlateUtility {
 
 
         return note_rows;
+    }
+
+    static concat_node_row_string(node_row: NoteRowType[]) {
+        let length = node_row.length;
+        let concat = "";
+        
+        for (let i = 0; i < length; i++) {
+            if (node_row[i].type != "paragraph") continue;
+
+            for (let k = 0; k < node_row[i].children.length; k++) {
+                concat += node_row[i].children[k].text;
+            }
+
+            concat += '\n';
+        }
+
+        return concat;
     }
 
 }

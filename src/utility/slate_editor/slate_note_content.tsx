@@ -6,7 +6,8 @@ import React, { Fragment, useCallback, useMemo } from 'react'
 import { action } from 'webextension-polyfill';
 
 export type SelectionFunction = (block_index: number, range: BaseRange, selected_descendents: Descendant[], whole_descendents: Descendant[]) => NoteRowType[];
-export type SelectionActionsCallback = () => {block_index: number, range: BaseRange, editor: Editor};
+export type SelectionActionsCallback = () => SelectionCallbackType;
+export type SelectionCallbackType =  {block_index: number, range: BaseRange, editor: Editor};
 
 export default function RenderSlateContent({index, id, editor, version, placeholder_text, default_data, readOnly, finish_edit_event, action_bar_event, selection_bar_event }: 
     {index: number, id: string, editor: BaseEditor & ReactEditor & HistoryEditor, 
@@ -90,7 +91,6 @@ export default function RenderSlateContent({index, id, editor, version, placehol
 
 const Element = (props : any)=> {
   const { attributes, children, element } = props
-
   switch (element.type) {
     case 'image':
       return <Image {...props} />
@@ -102,13 +102,13 @@ const Element = (props : any)=> {
 const Image = ({ attributes, children, element } : any) => {
   return (
     <div {...attributes}>
-      {children}
-      <div>
-        <img
-          src={element.url}
+    {children}
+    <div>
+      <img
+        src={element.url}
         />
-      </div>
     </div>
+  </div>
   )
 }
 
