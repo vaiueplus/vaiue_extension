@@ -128,6 +128,23 @@ hr {
             bottom: 0;
         }
 
+        .source_comp {
+            display: flex;
+            align-items: center;
+            justify-content: right;   
+            background: v.$color_white_dark;
+            border-radius: 16px;
+            padding: 0.1em 1em;
+            margin-left: auto;
+            width:fit-content;
+
+            a {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;    
+            }
+        }
+
         .block-draggable {
             position: absolute;
             top: 50%;

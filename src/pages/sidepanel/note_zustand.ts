@@ -15,7 +15,8 @@ export type NotePageZusStore = {
     set_array: (notes: NotePageType[]) => void,
     offset:(id:string, block_id: string, offset: number) => void,
 
-    insert_block:(id: string, block: NoteBlockType) => void,
+    insert_block:(id: string, index: number, block: NoteBlockType) => void,
+    append_block:(id: string, block: NoteBlockType) => void,
     update_block:(id: string, index: number, block: NoteBlockType) => void,
     delete_block:(id:string, index: number) => void,
 
@@ -67,7 +68,7 @@ export const useNoteDictStore = create<NotePageZusStore>( (set, get) => ({
             let index = note.blocks.findIndex(x => x._id == block_id);
             let block = note.blocks[index];
 
-            let new_index = Clamp(index + offset, 0, state.notes_array.length - 1);
+            let new_index = Clamp(index + offset, 0, note.blocks.length - 1);
 
             note.blocks.splice(index, 1);
             note.blocks.splice(new_index, 0, block);
@@ -76,9 +77,22 @@ export const useNoteDictStore = create<NotePageZusStore>( (set, get) => ({
         })); 
     },
 
-    insert_block(id: string, block: NoteBlockType) {
+    append_block(id: string, block: NoteBlockType) {
         set( produce( (state : NotePageZusStore) => {
             state.notes_dict[id].blocks.push(block);
+        }));
+    },
+
+    insert_block(id: string, index: number, block: NoteBlockType) {
+        //If out of index
+        const note_block = get().notes_dict[id];
+        if (index >= note_block.blocks.length) {
+            get().append_block(id, block);
+            return;
+        }
+
+        set( produce( (state : NotePageZusStore) => {
+            state.notes_dict[id].blocks.splice(index, 0, block);
         }));
     },
 
@@ -86,7 +100,7 @@ export const useNoteDictStore = create<NotePageZusStore>( (set, get) => ({
         //If out of index
         const note_block = get().notes_dict[id];
         if (index >= note_block.blocks.length) {
-            get().insert_block(id, block);
+            get().append_block(id, block);
             return;
         }
 

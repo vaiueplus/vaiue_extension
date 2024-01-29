@@ -22,12 +22,11 @@ Browser.runtime.onMessage.addListener(
         try {
             let message : ExtensionMessageStruct = request;
             //console.log(message);
-
             if (message.sender == MessageSender.Tab && message.id == MessageID.ContentPaste) 
-                OnPasteContentMessage(message.body);
+                OnPasteContentMessage(message.body, message.source);
 
             if (message.sender == MessageSender.Tab && message.id == MessageID.ContentCreate) 
-                OnCreateContentMessage(message.body);
+                OnCreateContentMessage(message.body, message.source);
 
             if (message.sender == MessageSender.SidePanel && message.id == MessageID.NoteUpdate) 
                 OnSidePanelNoteMessage(message.body);
@@ -54,7 +53,7 @@ const CreateNewNotePage = function(content: string, note_size: number) {
     return note;
 }
 
-const OnPasteContentMessage = async function(contents: NoteRowType[]) {
+const OnPasteContentMessage = async function(contents: NoteRowType[], source: string) {
 
     console.log("OnPasteContentMessage", contents)
     let last_visit_note = await GetLastVisitedNotes();
@@ -71,11 +70,12 @@ const OnPasteContentMessage = async function(contents: NoteRowType[]) {
     let message : ExtensionMessageStruct = { sender: MessageSender.Background, id: MessageID.ContentPaste };
 
     if (local_record.length <= 0) {
-        OnCreateContentMessage(contents);
+        OnCreateContentMessage(contents, source);
         return;
     } else {
         const s_block = GetSingleBlock("");
         s_block.row = contents;
+        s_block.source = source;
         local_record[last_block_index].blocks.push(s_block);
 
         message.action = DBAction.Insert;
@@ -86,11 +86,12 @@ const OnPasteContentMessage = async function(contents: NoteRowType[]) {
     Browser.storage.local.set({notes: local_record});
 }
 
-const OnCreateContentMessage = async function(contents: NoteRowType[]) {
+const OnCreateContentMessage = async function(contents: NoteRowType[], source: string) {
     let local_record = await GetLocalNotes();
 
     let note : NotePageType = CreateNewNotePage("", local_record.length);
         note.blocks[0].row = contents;
+        note.blocks[0].source = source;
         local_record.push(note);
 
     let message : ExtensionMessageStruct = { 

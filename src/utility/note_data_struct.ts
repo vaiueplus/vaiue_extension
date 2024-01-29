@@ -1,6 +1,8 @@
+import {v4 as uuidv4} from 'uuid';
+
 export const GetEmptyNotePage = function() {
     let new_block : NotePageType = {
-        _id: "",
+        _id: uuidv4(),
         title: "",
         date: "",
         blocks: [GetEmptyNoteBlock()],//Only prepare header block
@@ -9,11 +11,11 @@ export const GetEmptyNotePage = function() {
     return new_block;
 }
 
-export const GetEmptyNoteBlock = function() {
+export const GetEmptyNoteBlock = function(default_text = "") {
     let new_block : NoteBlockType = {
-        _id: "",
+        _id: uuidv4(),
         version: 0,
-        row: [{type: "paragraph", children: [{text: ""}]}],//Only prepare header block
+        row: [{type: "paragraph", children: [{text: default_text}]}],//Only prepare header block
     }
     return new_block;
 }

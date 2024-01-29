@@ -7,7 +7,7 @@ import { action } from 'webextension-polyfill';
 
 export type SelectionFunction = (block_index: number, range: BaseRange, selected_descendents: Descendant[], whole_descendents: Descendant[]) => NoteRowType[];
 export type SelectionActionsCallback = () => SelectionCallbackType;
-export type SelectionCallbackType =  {block_index: number, range: BaseRange, editor: Editor};
+export type SelectionCallbackType =  {block_index: number, fragment: Descendant[], range: BaseRange, editor: Editor};
 
 export default function RenderSlateContent({index, id, editor, version, placeholder_text, default_data, readOnly, finish_edit_event, action_bar_event, selection_bar_event }: 
     {index: number, id: string, editor: BaseEditor & ReactEditor & HistoryEditor, 
@@ -56,10 +56,10 @@ export default function RenderSlateContent({index, id, editor, version, placehol
     }
 
       onSelect={() => {
-        // console.log("OnSelect Done");
-        // console.log(_cacheRange);
-        // console.log(editor.getFragment());
-        // console.log(editor.children);
+        console.log("OnSelect Done");
+        console.log(_cacheRange);
+        console.log(editor.getFragment());
+        console.log(editor.children);
 
         // editor.deselect();
         // let high_light_children = selection_event(index, _cacheRange, editor.getFragment(), editor.children);
@@ -71,6 +71,7 @@ export default function RenderSlateContent({index, id, editor, version, placehol
 
           let keyword_struct = {
             block_index: index, 
+            fragment: editor.getFragment(),
             range: _cacheRange,
             editor: editor, 
           };

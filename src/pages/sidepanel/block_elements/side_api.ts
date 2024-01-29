@@ -1,6 +1,6 @@
 import { API } from "@root/src/utility/static_data"
 
-export const translate = function(source: string, source_lang: string, target_lang: string): Promise<string> {
+export const translate = async function(source: string, source_lang: string, target_lang: string): Promise<string> {
 
     let context = {
 		"q": source,
@@ -10,7 +10,8 @@ export const translate = function(source: string, source_lang: string, target_la
 		"api_key": ""
 	}
 
-    return json_post_request(API.Translation, "POST", JSON.stringify(context));
+    let json_result = await json_post_request(API.Translation, "POST", JSON.stringify(context));
+    return json_result['translatedText'];
 }
 
 export const json_post_request = function(url: string, method: string, context: string) {

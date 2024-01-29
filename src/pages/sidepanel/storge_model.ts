@@ -73,7 +73,7 @@ export default class StorageModel {
     }
 
     content_page_insert_note(note_id: string, block: NoteBlockType) {
-        useNoteDictStore.getState().insert_block(note_id, block);
+        useNoteDictStore.getState().append_block(note_id, block);
     }
 
     set_notes(notes: NotePageType[]) {
