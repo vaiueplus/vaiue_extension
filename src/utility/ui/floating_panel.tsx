@@ -83,6 +83,8 @@ export class RenderSideActionBar extends AbstractMovable {
     render() {
         return(
             <div id={this.id}>
+                <button onClick={() => this._callback?.(this._block_id, FloatActionBarState.Delete)}>Remove</button>
+                <hr></hr>
                 <button onClick={() => this._callback?.(this._block_id, FloatActionBarState.Move_Up)}>Up</button>
                 <hr></hr>
                 <button onClick={() => this._callback?.(this._block_id, FloatActionBarState.Move_Down)}>Down</button>

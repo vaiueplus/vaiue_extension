@@ -28,7 +28,7 @@ export interface LearningResourceInterface {
     learning_tags: string[]
 }
 
-export enum FloatActionBarState {Image, AI_Source, Move_Up, Move_Down}
+export enum FloatActionBarState {Image, AI_Source, Move_Up, Move_Down, Delete}
 export enum HighlightActionBarState {Keyword, DoubleCheck, Translation}
 
 //#region User Account

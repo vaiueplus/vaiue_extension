@@ -63,6 +63,9 @@
 
 #float_select_bar {
     @include ifloat_bar;
+
+    background-color: transparent;
+
     gap: 0.2em;
     padding: 0.2em;
     border-radius: 5px;

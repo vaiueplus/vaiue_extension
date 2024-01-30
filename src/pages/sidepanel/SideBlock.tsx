@@ -11,7 +11,7 @@ import { MouseHelper } from '@root/src/utility/ui/mouse_helper';
 import { Fragment } from 'react';
 import RenderSlateContent, { SelectionActionsCallback, SelectionCallbackType } from '@root/src/utility/slate_editor/slate_note_content';
 import { RenderSideActionBar, RenderSourcePanel, RenderSelectActionBar,  ShowFloatingBoard } from '@root/src/utility/ui/floating_panel';
-import { Link, useParams } from 'react-router-dom';
+import { Link, redirect, useNavigate, useParams } from 'react-router-dom';
 import StorageModel from './storge_model';
 import React from 'react';
 import { memo } from 'react';
@@ -33,6 +33,7 @@ const sideBlockHelper = new SideBlockHelper(floatActionbar, floatSourcePanel, fl
 
 const SideBlock = ({storage} : {storage: StorageModel}) => {
     let { page_id } = useParams();
+    const navigate = useNavigate();
 
     const append_block_action = useNoteDictStore((state) => state.append_block);
     const insert_block_action = useNoteDictStore((state) => state.insert_block);
@@ -41,6 +42,7 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
     const offset_block_action = useNoteDictStore((state) => state.offset);
 
     const set_page_action = useNoteDictStore((state) => state.set);
+    const remove_note_action = useNoteDictStore((state) => state.remove);
 
     let notes_dict = useNoteDictStore((state) => state.notes_dict);
     let noteFullPage = notes_dict[page_id];
@@ -240,6 +242,12 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         copy_page.title = new_title;
         set_page_action(copy_page)
     }
+
+    const on_note_delete = function() {
+        navigate("/");
+        storage.delete_note_to_background(page_id);
+        remove_note_action(page_id);
+    }
 //#endregion
 
 
@@ -277,7 +285,10 @@ return (
             on_slate_title_change={on_slate_title_change}
             on_action_bar_click={on_action_bar_click} />
 
-        <button className="button is-primary is-light" onClick={add_new_row}>Add+</button>
+        <div className='note_component_footer'>
+            <button className="button is-primary is-light" onClick={add_new_row}>Add+</button>
+            <button className='button is-danger is-light' onClick={on_note_delete}>x</button>
+        </div>
 
         <div className='floating-container'>
             { floatSourcePanel.render() }

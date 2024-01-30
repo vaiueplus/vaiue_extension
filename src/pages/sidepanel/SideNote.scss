@@ -175,4 +175,14 @@ hr {
             }
         }
     }
+
+    .note_component_footer {
+        display: flex;
+        justify-content: right;   
+        gap: 0.5em;
+
+        .is-primary {
+            flex-grow: 2;
+        }
+    }
 }
