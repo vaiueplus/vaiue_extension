@@ -3,6 +3,7 @@ import { Vector2 } from "@src/utility/VectorMath";
 import { MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { PointBoxSection } from "@src/utility/static_utility";
 import { FloatActionBarState, HighlightActionBarState } from "@src/utility/data_structure";
+import { LangaugeCode } from "../static_data";
 
 export class RenderSourcePanel extends AbstractMovable {
     _callback: ((id: string, link:string) => void) | null = null;
@@ -150,19 +151,61 @@ export class RenderSelectActionBar extends AbstractMovable {
 }
 
 export class RenderTrnaslationActionBar extends AbstractMovable {
-    private _callback: ((action_type: HighlightActionBarState) => void) | null = null;
+    private _translation_action: (source: string, source_lang: string, target_lang: string) => Promise<string> | null = null;
+    private _confirm_callback: (translation_result: string) => void;
+    private _cancel_callback: () => void;
+
+    private _source: string = "";
+    private _translation: string = "";
+
+    private _language_options = [{'code': LangaugeCode.TraditionalChinese, 'value': '中文'},
+                                {'code': LangaugeCode.English, 'value': 'English' }];
 
     constructor() {
         super();
         this.id = "float_translation_bar";
     }
 
-    set_callback(callback: (action_type: HighlightActionBarState) => void) {
-        this._callback = callback;
+    set_callback(translation_action: (source: string, source_lang: string, target_lang: string) => Promise<string>, 
+                confirm_callback: (translation_result: string) => void,
+                cancel_callback: () => void) {
+        this._translation_action = translation_action;
+        this._confirm_callback = confirm_callback;
+        this._cancel_callback = cancel_callback;
     }
 
     show(is_show: boolean) {
         super.show(is_show);
+    }
+
+    async setup(source: string) {
+        this._source = source;
+        this.show(true);
+        this.render();
+
+        this.process_translation();
+    }
+
+    private async process_translation() {
+        let source_select: HTMLSelectElement = document.querySelector("#translation_select_source select");
+        let target_select: HTMLSelectElement = document.querySelector("#translation_select_target select");
+        let textarea_dom: HTMLTextAreaElement = document.querySelector(".language_content textarea");
+
+        textarea_dom.value = await this._translation_action(this._source, source_select.value, target_select.value);
+    }
+
+    get_option_dom(default_code: string = null) {
+        return (
+            <select onChange={this.process_translation.bind(this)}>
+                {
+                    this._language_options.map(x =>
+                        (
+                            <option value={x.code} selected={default_code==x.code}>{x.value}</option>
+                        )
+                    )
+                }
+            </select>
+        )
     }
 
     render() {
@@ -170,28 +213,25 @@ export class RenderTrnaslationActionBar extends AbstractMovable {
             <div id={this.id}>
 
                 <div className="language_header">
-                    <div className="select is-small">
-                    <select>
-                        <option value='zh'>中文</option>
-                        <option value='en'>English</option>
-                    </select>
+                    <div className="select is-small" id="translation_select_source">
+                        {this.get_option_dom(LangaugeCode.English)}
                     </div>
                     <p> to </p>
-                    <div className="select is-small">
-                    <select>
-                        <option value='zh'>中文</option>
-                        <option value='en'>English</option>
-                    </select>
+                    <div className="select is-small" id="translation_select_target">
+                        {this.get_option_dom(LangaugeCode.TraditionalChinese)}
                     </div>
 
                     <div className='float_translation_bar_options'>
-                        <button className="button is-danger">Delete</button>
-                        <button className="button is-primary">Confirm</button>
+                        <button className="button is-danger" onClick={this._cancel_callback}>Delete</button>
+                        <button className="button is-primary" onClick={() => {
+                            let textarea_dom: HTMLTextAreaElement = document.querySelector(".language_content textarea");
+                            this._confirm_callback(textarea_dom.value);
+                        }}>Confirm</button>
                     </div>
                 </div>
 
                 <div className="language_content">
-                    <p>Content</p>
+                    <textarea className="textarea"></textarea>
                 </div>
 
             </div>

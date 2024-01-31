@@ -50,17 +50,11 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
 
     sideBlockHelper.set_callback(append_block_action, update_block_action, delete_block_action);
     sideBlockHelper.set_parameter(noteFullPage, storage);
-
     storage.save_note_to_background(noteFullPage);
 
     // //OnDestroy
     useEffect(() => {
         let mouse_helper = new MouseHelper();
-
-        floatTranslationBar.show(true);
-        floatTranslationBar.set_position(
-            document.body.clientWidth / 2, document.body.clientHeight / 2 
-        );
 
         mouse_helper.register_mouse_down((pos) => {
             floatSourcePanel.mouse_down_event(pos);
@@ -164,8 +158,22 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         let selected_descendents = selection_type.fragment;
         const concat_string = SlateUtility.concat_node_row_string(selected_descendents);
 
-        let t_string = await translate(concat_string, LangaugeCode.English, LangaugeCode.TraditionalChinese);
-        insert_block_action(page_id, selection_type.block_index + 1, GetEmptyNoteBlock(t_string));
+        floatTranslationBar.set_callback(translate, 
+            (translation_text: string) => {
+                insert_block_action(page_id, selection_type.block_index + 1, GetEmptyNoteBlock(translation_text))
+            },
+            () => {
+                floatTranslationBar.show(false);
+            }
+        )
+
+        floatTranslationBar.setup(concat_string);
+        floatTranslationBar.set_position(
+            (document.body.clientWidth - floatTranslationBar.get_bound().width) * 0.5
+            , document.body.clientHeight / 2 
+        );
+        // let t_string = await translate(concat_string, LangaugeCode.English, LangaugeCode.TraditionalChinese);
+        // insert_block_action(page_id, selection_type.block_index + 1, GetEmptyNoteBlock(t_string));
     }
 
     const on_selection_bar_event = function(selection_callback: SelectionActionsCallback) {

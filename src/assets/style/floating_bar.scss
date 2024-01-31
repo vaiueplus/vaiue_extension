@@ -83,19 +83,22 @@
     padding: 0.2em;
     border-radius: 5px;
     width: 90%;
-
-
     
     .language_header {
         display: flex;
-    
+        align-items: center;
+        justify-content: center;
         .float_translation_bar_options {
             margin-left: auto;
-            gap: 2px;
+            display: inline-flex;
             button {
-                margin: 0px 1px;
-                font-size: 0.8em;
+                margin: 0em 0.1em;
+                font-size: 0.7em;
             }
         }
+    }
+
+    .language_content {
+        padding: 0.1em;
     }
 }
