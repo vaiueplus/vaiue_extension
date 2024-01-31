@@ -1,3 +1,5 @@
+@use '@src/assets/style/variable.scss' as v;
+
 @mixin ifloat_bar() {
     position: absolute;
     background-color: aquamarine;
@@ -70,4 +72,30 @@
     padding: 0.2em;
     border-radius: 5px;
     width: 5em;
+}
+
+#float_translation_bar {
+    @include ifloat_bar;
+    background-color: v.$color_white;
+    border: 1px solid v.$color_light_blue;
+
+    gap: 0.2em;
+    padding: 0.2em;
+    border-radius: 5px;
+    width: 90%;
+
+
+    
+    .language_header {
+        display: flex;
+    
+        .float_translation_bar_options {
+            margin-left: auto;
+            gap: 2px;
+            button {
+                margin: 0px 1px;
+                font-size: 0.8em;
+            }
+        }
+    }
 }

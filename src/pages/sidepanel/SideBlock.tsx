@@ -10,7 +10,7 @@ import { API, Color, LangaugeCode } from '@root/src/utility/static_data';
 import { MouseHelper } from '@root/src/utility/ui/mouse_helper';
 import { Fragment } from 'react';
 import RenderSlateContent, { SelectionActionsCallback, SelectionCallbackType } from '@root/src/utility/slate_editor/slate_note_content';
-import { RenderSideActionBar, RenderSourcePanel, RenderSelectActionBar,  ShowFloatingBoard } from '@root/src/utility/ui/floating_panel';
+import { RenderSideActionBar, RenderSourcePanel, RenderSelectActionBar,  ShowFloatingBoard, RenderTrnaslationActionBar } from '@root/src/utility/ui/floating_panel';
 import { Link, redirect, useNavigate, useParams } from 'react-router-dom';
 import StorageModel from './storge_model';
 import React from 'react';
@@ -28,6 +28,7 @@ import { GetDomain } from '@root/src/utility/static_utility';
 let floatActionbar = new RenderSideActionBar()
 let floatSourcePanel = new RenderSourcePanel()
 let floatSelectBar = new RenderSelectActionBar()
+let floatTranslationBar = new RenderTrnaslationActionBar()
 
 const sideBlockHelper = new SideBlockHelper(floatActionbar, floatSourcePanel, floatSelectBar);
 
@@ -55,6 +56,12 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
     // //OnDestroy
     useEffect(() => {
         let mouse_helper = new MouseHelper();
+
+        floatTranslationBar.show(true);
+        floatTranslationBar.set_position(
+            document.body.clientWidth / 2, document.body.clientHeight / 2 
+        );
+
         mouse_helper.register_mouse_down((pos) => {
             floatSourcePanel.mouse_down_event(pos);
             floatActionbar.mouse_down_event(pos);
@@ -294,6 +301,7 @@ return (
             { floatSourcePanel.render() }
             { floatActionbar.render() }
             { floatSelectBar.render() }
+            { floatTranslationBar.render() }
         </div>
     </div>
 );

@@ -149,6 +149,56 @@ export class RenderSelectActionBar extends AbstractMovable {
     }
 }
 
+export class RenderTrnaslationActionBar extends AbstractMovable {
+    private _callback: ((action_type: HighlightActionBarState) => void) | null = null;
+
+    constructor() {
+        super();
+        this.id = "float_translation_bar";
+    }
+
+    set_callback(callback: (action_type: HighlightActionBarState) => void) {
+        this._callback = callback;
+    }
+
+    show(is_show: boolean) {
+        super.show(is_show);
+    }
+
+    render() {
+        return(
+            <div id={this.id}>
+
+                <div className="language_header">
+                    <div className="select is-small">
+                    <select>
+                        <option value='zh'>中文</option>
+                        <option value='en'>English</option>
+                    </select>
+                    </div>
+                    <p> to </p>
+                    <div className="select is-small">
+                    <select>
+                        <option value='zh'>中文</option>
+                        <option value='en'>English</option>
+                    </select>
+                    </div>
+
+                    <div className='float_translation_bar_options'>
+                        <button className="button is-danger">Delete</button>
+                        <button className="button is-primary">Confirm</button>
+                    </div>
+                </div>
+
+                <div className="language_content">
+                    <p>Content</p>
+                </div>
+
+            </div>
+        )
+    }
+}
+
 export const MovePanelToPos = function(target: HTMLBaseElement, bound: DOMRect, x: number, y: number) {
     let body_width = document.body.clientWidth;
     let body_height = document.body.clientHeight;
