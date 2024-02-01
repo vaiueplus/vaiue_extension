@@ -20,10 +20,11 @@ export const EventID = Object.freeze({
 });
 
 export const LangaugeCode = Object.freeze({
-    TraditionalChinese : "zh",
-    SimplifiedChinese : 'cn',
+    TraditionalChinese : "zt",
+    SimplifiedChinese : 'zh',
     English: "en",
-    Korea: 'ko'
+    Korea: 'ko',
+    Japanese: 'ja'
 });
 
 export const NoteSourceIcon = Object.freeze({
@@ -65,7 +66,11 @@ export const MessageID = Object.freeze({
 
 export const StorageID = Object.freeze({
     Notes : "notes",
-    LastVisitNote : "last_visit_note"
+    LastVisitNote : "last_visit_note",
+
+    TranslationSource : "translation_source",
+    TranslationTarget : "translation_target"
+
 });
 
 export const DBAction = Object.freeze({

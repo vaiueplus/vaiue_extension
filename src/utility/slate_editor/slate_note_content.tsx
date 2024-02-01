@@ -56,10 +56,10 @@ export default function RenderSlateContent({index, id, editor, version, placehol
     }
 
       onSelect={() => {
-        console.log("OnSelect Done");
-        console.log(_cacheRange);
-        console.log(editor.getFragment());
-        console.log(editor.children);
+        // console.log("OnSelect Done");
+        // console.log(_cacheRange);
+        // console.log(editor.getFragment());
+        // console.log(editor.children);
 
         // editor.deselect();
         // let high_light_children = selection_event(index, _cacheRange, editor.getFragment(), editor.children);

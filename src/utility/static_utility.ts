@@ -72,3 +72,11 @@ export function GetDomain(url: string) {
 
   return domain.hostname;
 }
+
+export function GetLocalStorageValue(key: string, default_val: string): string{
+  let v = localStorage.getItem(key);
+
+  if (v == null) return default_val;
+
+  return v;
+} 

@@ -49,9 +49,6 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
     let notes_dict = useNoteDictStore((state) => state.notes_dict);
     let noteFullPage = notes_dict[page_id];
 
-    console.log('SideBlock');
-    console.log(noteFullPage.blocks);
-
     sideBlockHelper.set_callback(append_block_action, update_block_action, delete_block_action);
     sideBlockHelper.set_parameter(noteFullPage, storage);
     storage.save_note_to_background(noteFullPage);
@@ -70,7 +67,6 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         mouse_helper.register_changes(() => {
             floatSelectBar.show(false);
             floatActionbar.show(false);
-            floatTranslationBar.show(false);
         });
 
         return () => {
@@ -179,13 +175,13 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
             }
         )
 
+        const float_bar_bound = floatSelectBar.get_bound();
+
         floatTranslationBar.setup(concat_string);
         floatTranslationBar.set_position(
             (document.body.clientWidth - floatTranslationBar.get_bound().width) * 0.5
-            , document.body.clientHeight / 2 
+            , float_bar_bound.y + float_bar_bound.height
         );
-        // let t_string = await translate(concat_string, LangaugeCode.English, LangaugeCode.TraditionalChinese);
-        // insert_block_action(page_id, selection_type.block_index + 1, GetEmptyNoteBlock(t_string));
     }
 
     const on_selection_bar_event = function(selection_callback: SelectionActionsCallback) {
@@ -215,8 +211,6 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         floatSelectBar.set_callback((action_type: HighlightActionBarState) => {
             const keyword_struct = selection_callback();
 
-            floatSelectBar.show(false);
-
             if (action_type == HighlightActionBarState.Keyword) {
 
                 let high_light_children = trigger_keyword_action(keyword_struct);
@@ -228,6 +222,8 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
             if (action_type == HighlightActionBarState.Translation) {
                 trigger_translation_action(keyword_struct);
             }
+
+            floatSelectBar.show(false);
         });
     }
 

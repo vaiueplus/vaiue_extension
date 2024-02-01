@@ -1,9 +1,9 @@
 import { AbstractMovable } from "./movable_view";
 import { Vector2 } from "@src/utility/VectorMath";
 import { MouseEventHandler, useEffect, useMemo, useState } from "react";
-import { PointBoxSection } from "@src/utility/static_utility";
+import { GetLocalStorageValue, PointBoxSection } from "@src/utility/static_utility";
 import { FloatActionBarState, HighlightActionBarState } from "@src/utility/data_structure";
-import { LangaugeCode } from "../static_data";
+import { LangaugeCode, StorageID } from "../static_data";
 
 export class RenderSourcePanel extends AbstractMovable {
     _callback: ((id: string, link:string) => void) | null = null;
@@ -158,8 +158,13 @@ export class RenderTrnaslationActionBar extends AbstractMovable {
     private _source: string = "";
     private _translation: string = "";
 
-    private _language_options = [{'code': LangaugeCode.TraditionalChinese, 'value': '中文'},
-                                {'code': LangaugeCode.English, 'value': 'English' }];
+    private _language_options = [
+                                {'code': LangaugeCode.English, 'value': 'English' },
+                                {'code': LangaugeCode.Japanese, 'value': '日本語' },
+                                {'code': LangaugeCode.Korea, 'value': '한국어' },
+                                {'code': LangaugeCode.TraditionalChinese, 'value': '正體中文'},
+                                {'code': LangaugeCode.SimplifiedChinese, 'value': '簡體中文'},
+                            ];
 
     constructor() {
         super();
@@ -189,15 +194,23 @@ export class RenderTrnaslationActionBar extends AbstractMovable {
     private async process_translation() {
         let source_select: HTMLSelectElement = document.querySelector("#translation_select_source select");
         let target_select: HTMLSelectElement = document.querySelector("#translation_select_target select");
-        let textarea_dom: HTMLTextAreaElement = document.querySelector(".language_content textarea");
+
+        let sourcearea_dom: HTMLTextAreaElement = document.querySelector(".language_content .source_preview");
+        let textarea_dom: HTMLTextAreaElement = document.querySelector(".language_content .source_translated");
+
         textarea_dom.value = "Translating . . .";
+        sourcearea_dom.value = this._source;
 
         textarea_dom.value = await this._translation_action(this._source, source_select.value, target_select.value);
     }
 
-    get_option_dom(default_code: string = null) {
+    get_option_dom(lang_key:string, default_code: string = null) {
         return (
-            <select onChange={this.process_translation.bind(this)}>
+            <select onChange={
+                (e) => {
+                    localStorage.setItem(lang_key, e.target.value);
+                    this.process_translation();
+                }}>
                 {
                     this._language_options.map(x =>
                         (
@@ -210,29 +223,36 @@ export class RenderTrnaslationActionBar extends AbstractMovable {
     }
 
     render() {
+
+        let default_source_lang = GetLocalStorageValue(StorageID.TranslationSource, LangaugeCode.English);
+        let default_targetg_lang = GetLocalStorageValue(StorageID.TranslationTarget, LangaugeCode.TraditionalChinese);
         return(
             <div id={this.id}>
 
                 <div className="language_header">
                     <div className="select is-small" id="translation_select_source">
-                        {this.get_option_dom(LangaugeCode.English)}
+                        {this.get_option_dom(StorageID.TranslationSource, default_source_lang)}
                     </div>
                     <p> to </p>
                     <div className="select is-small" id="translation_select_target">
-                        {this.get_option_dom(LangaugeCode.TraditionalChinese)}
+                        {this.get_option_dom(StorageID.TranslationTarget, default_targetg_lang)}
                     </div>
 
                     <div className='float_translation_bar_options'>
-                        <button className="button is-danger" onClick={this._cancel_callback}>Discard</button>
+                        <button className="button is-danger" onClick={() => {
+                            this._cancel_callback();
+                        }}>Discard</button>
                         <button className="button is-primary" onClick={() => {
-                            let textarea_dom: HTMLTextAreaElement = document.querySelector(".language_content textarea");
+                            let textarea_dom: HTMLTextAreaElement = document.querySelector(".language_content .source_translated");
                             this._confirm_callback(textarea_dom.value);
                         }}>Confirm</button>
                     </div>
                 </div>
 
                 <div className="language_content">
-                    <textarea className="textarea"></textarea>
+                    <p>{this._source}</p>
+                    <textarea className="textarea source_preview" disabled={true}></textarea>
+                    <textarea className="textarea source_translated"></textarea>
                 </div>
 
             </div>
