@@ -190,6 +190,7 @@ export class RenderTrnaslationActionBar extends AbstractMovable {
         let source_select: HTMLSelectElement = document.querySelector("#translation_select_source select");
         let target_select: HTMLSelectElement = document.querySelector("#translation_select_target select");
         let textarea_dom: HTMLTextAreaElement = document.querySelector(".language_content textarea");
+        textarea_dom.value = "Translating . . .";
 
         textarea_dom.value = await this._translation_action(this._source, source_select.value, target_select.value);
     }
@@ -222,7 +223,7 @@ export class RenderTrnaslationActionBar extends AbstractMovable {
                     </div>
 
                     <div className='float_translation_bar_options'>
-                        <button className="button is-danger" onClick={this._cancel_callback}>Delete</button>
+                        <button className="button is-danger" onClick={this._cancel_callback}>Discard</button>
                         <button className="button is-primary" onClick={() => {
                             let textarea_dom: HTMLTextAreaElement = document.querySelector(".language_content textarea");
                             this._confirm_callback(textarea_dom.value);

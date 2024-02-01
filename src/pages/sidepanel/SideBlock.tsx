@@ -40,6 +40,7 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
     const insert_block_action = useNoteDictStore((state) => state.insert_block);
     const update_block_action = useNoteDictStore((state) => state.update_block);
     const delete_block_action = useNoteDictStore((state) => state.delete_block);
+    const delete_block_by_id_action = useNoteDictStore((state) => state.delete_block_by_id);
     const offset_block_action = useNoteDictStore((state) => state.offset);
 
     const set_page_action = useNoteDictStore((state) => state.set);
@@ -47,6 +48,9 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
 
     let notes_dict = useNoteDictStore((state) => state.notes_dict);
     let noteFullPage = notes_dict[page_id];
+
+    console.log('SideBlock');
+    console.log(noteFullPage.blocks);
 
     sideBlockHelper.set_callback(append_block_action, update_block_action, delete_block_action);
     sideBlockHelper.set_parameter(noteFullPage, storage);
@@ -60,17 +64,20 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
             floatSourcePanel.mouse_down_event(pos);
             floatActionbar.mouse_down_event(pos);
             floatSelectBar.mouse_down_event(pos);
+            floatTranslationBar.mouse_down_event(pos);
         });
 
         mouse_helper.register_changes(() => {
             floatSelectBar.show(false);
             floatActionbar.show(false);
+            floatTranslationBar.show(false);
         });
 
         return () => {
             floatSourcePanel.dispose();
             floatActionbar.dispose();
             floatSelectBar.dispose();
+            floatTranslationBar.dispose();
 
             mouse_helper.dispose();
         };
@@ -120,6 +127,10 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         //     floatActionbar.show(false);
         // }
 
+        if (state == FloatActionBarState.Delete) {
+            delete_block_by_id_action(page_id, block_id);
+        }
+
         if (state == FloatActionBarState.Move_Down) {
             offset_block_action(page_id, block_id, 1);
         }
@@ -160,7 +171,8 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
 
         floatTranslationBar.set_callback(translate, 
             (translation_text: string) => {
-                insert_block_action(page_id, selection_type.block_index + 1, GetEmptyNoteBlock(translation_text))
+                insert_block_action(page_id, selection_type.block_index + 1, GetEmptyNoteBlock(translation_text));
+                floatTranslationBar.show(false);
             },
             () => {
                 floatTranslationBar.show(false);
@@ -203,9 +215,9 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         floatSelectBar.set_callback((action_type: HighlightActionBarState) => {
             const keyword_struct = selection_callback();
 
+            floatSelectBar.show(false);
 
             if (action_type == HighlightActionBarState.Keyword) {
-                floatSelectBar.show(false);
 
                 let high_light_children = trigger_keyword_action(keyword_struct);
     
@@ -218,8 +230,6 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
             }
         });
     }
-
-    
 
     const on_source_link_set = function(id: string, link: string) {
         sideBlockHelper.change_block_value(id, (block: NoteBlockType) => {

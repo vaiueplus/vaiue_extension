@@ -19,6 +19,7 @@ export type NotePageZusStore = {
     append_block:(id: string, block: NoteBlockType) => void,
     update_block:(id: string, index: number, block: NoteBlockType) => void,
     delete_block:(id:string, index: number) => void,
+    delete_block_by_id: (id:string, block_id: string) => void,
 
     //Removal
     remove: (id: string) => void,
@@ -111,6 +112,13 @@ export const useNoteDictStore = create<NotePageZusStore>( (set, get) => ({
 
     delete_block(id:string, index: number) {
         set( produce( (state : NotePageZusStore) => {
+            state.notes_dict[id].blocks.splice(index, 1);
+        }));
+    },
+
+    delete_block_by_id(id:string, block_id: string) {
+        set( produce( (state : NotePageZusStore) => {
+            let index = state.notes_dict[id].blocks.findIndex(x=>x._id == block_id);
             state.notes_dict[id].blocks.splice(index, 1);
         }));
     },
