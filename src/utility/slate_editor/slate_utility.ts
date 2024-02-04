@@ -1,5 +1,5 @@
 import { BaseRange, Descendant } from "slate";
-import { NoteParagraphType, NoteRowType } from "../note_data_struct";
+import { NoteKeywordType, NoteParagraphType, NoteRowType } from "../note_data_struct";
 import {v4 as uuidv4} from 'uuid';
 
 export class SlateUtility {
@@ -75,7 +75,8 @@ export class SlateUtility {
         return [paragraph];
     }
 
-    static create_highLight_rows(range: BaseRange, whole_descendents: any[]) {
+    static create_highLight_rows(range: BaseRange, whole_descendents: any[], 
+                                callback_ops: (paragraph: NoteParagraphType[]) => NoteParagraphType[] = null) {
 
         if (range == undefined) return null;
 
@@ -113,10 +114,11 @@ export class SlateUtility {
                         continue;
                     }
 
-                const candidates = SlateUtility.create_paragraph(current_paragraph, x, y, 
+                let candidates = SlateUtility.create_paragraph(current_paragraph, x, y, 
                                                                 start_x, start_y, start_offset,
                                                                 end_x, end_y, end_offset);
-
+                
+                if (callback_ops != null) candidates = callback_ops(candidates);                 
 
 
                 const candidate_lens = candidates.length;
@@ -139,8 +141,8 @@ export class SlateUtility {
     }
 
 
-    static get_keyword_tags(note_rows: NoteRowType[]) : Map<string, string> {
-        let dict = new Map<string, string>();
+    static get_keyword_tags(note_rows: NoteRowType[]) : Map<string, NoteKeywordType> {
+        let dict = new Map<string, NoteKeywordType>();
 
         note_rows.forEach(r => {
             if (r.children == undefined) return;
@@ -150,15 +152,20 @@ export class SlateUtility {
             for (let i = 0; i < p_lens; i++) {
                 if (r.children[i]._id == undefined ||
                     r.children[i].keyword  == undefined) continue;
+                
+                let cache_keyword_type = dict.get(r.children[i]._id);
+                let previous_string = "";
 
-                let previous_string = dict.get(r.children[i]._id);
-                if (previous_string == undefined) previous_string = "";
-
+                if (cache_keyword_type != undefined) 
+                    previous_string = cache_keyword_type.text;
+                
                 let text = r.children[i].text;
                     text = previous_string + text;
+                
+                let keyword_type: NoteKeywordType = { text: text, _id:r.children[i]._id, validation: r.children[i].validation }; 
 
                 if (text.length > 0)
-                    dict.set(r.children[i]._id, text);
+                    dict.set(r.children[i]._id, keyword_type);
             }
         });
 

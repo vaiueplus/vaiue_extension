@@ -46,8 +46,7 @@ export type NoteSource = {
 export type NoteRowType = {
     type: "image" | "paragraph",
     children: NoteParagraphType[],
-    url?: string,
-    keyword?: NoteKeywordType[],
+    url?: string
 }
 
 //Fourth Layer
@@ -57,6 +56,7 @@ export type NoteParagraphType = {
     bold?: boolean,
     italic?: boolean,
     keyword?: boolean,
+    validation?: NoteValidationType,
     hover?: boolean,
     _id?: string // Use to group keyword together
 }
@@ -65,8 +65,11 @@ export type NoteKeywordType = {
     _id: string,
     text: string,
 
-    ref_paragraph: string,
-    ref_block: string,
+    validation?: NoteValidationType,
+}
+
+export type NoteValidationType = {
+    is_validated: boolean,
 }
 
 export const NoteSourceTexStatic = Object.freeze({

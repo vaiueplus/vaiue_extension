@@ -29,7 +29,7 @@ export interface LearningResourceInterface {
 }
 
 export enum FloatActionBarState {Image, AI_Source, Move_Up, Move_Down, Delete}
-export enum HighlightActionBarState {Keyword, DoubleCheck, Translation}
+export enum HighlightActionBarState {Keyword, Validation, Translation}
 
 //#region User Account
 export interface UserSSO_Struct {

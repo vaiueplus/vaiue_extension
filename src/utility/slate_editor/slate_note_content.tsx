@@ -189,7 +189,12 @@ export function ParseItemsToSlates(blocks: NoteRowType[]) {
     }
 
     if (leaf.keyword) {
-      children = <span id={leaf._id.substring(0, 5)} className='slate-keyword'>{children}</span>
+
+      if ('validation' in leaf)
+        children = <span id={leaf._id.substring(0, 5)} className='slate-validation'>{children}</span>
+      else 
+        children = <span id={leaf._id.substring(0, 5)} className='slate-keyword'>{children}</span>
+
     }
 
     return <span {...attributes}>{children}</span>

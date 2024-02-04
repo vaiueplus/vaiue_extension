@@ -101,6 +101,20 @@ hr {
   }
 }
 
+
+@mixin highlight_mixin {
+    display: inline-block;
+    border-radius: 5px;
+    color: v.$color_white;
+    margin-right: 0.5em;
+    padding: 0.2em 0.5em;
+    max-width: 8em;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .preview-comp {
     display: flex;
     flex-direction: column;
@@ -157,21 +171,25 @@ hr {
             width: 100%;
 
             .keyword_comp {
-                display: inline-block;
-                border-radius: 5px;
+                @include highlight_mixin();
                 background-color: v.$color_green_shallow;
-                color: v.$color_white;
-                margin-right: 0.5em;
-                padding: 0.2em 0.5em;
-                max-width: 8em;
-
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
 
                 &:hover {
                     background-color: v.$color_hover;
                 }
+            }
+
+            .validation_comp {
+                @include highlight_mixin();
+                background-color: v.$color_orange_shallow;
+
+                &:hover {
+                    background-color: v.$color_hover;
+                }
+            }
+
+            .checkbox input[type="checkbox"] {
+                margin-right: 0.5em;
             }
         }
     }

@@ -2,5 +2,10 @@
 
 .slate-keyword {
     display: inline-block;
-    background-color: v.$color_highlight;
+    background-color: v.$color_green_shallow;
+}
+
+.slate-validation {
+    display: inline-block;
+    background-color: v.$color_orange_shallow;
 }

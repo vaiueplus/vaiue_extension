@@ -83,4 +83,8 @@ export const DBAction = Object.freeze({
 export const Color = Object.freeze({
     DarkOrange: "#d35400",
     LightYellow: "#f1c40f",
+
+    ShallowOrange: "#e67e22",
+    ShallowGreen: "#2ecc71",
+    ShallowRed: "#e74c3c",
 });

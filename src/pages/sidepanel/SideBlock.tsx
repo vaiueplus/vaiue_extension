@@ -4,7 +4,7 @@ import withSuspense from '@src/shared/hoc/withSuspense';
 import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
 import { FloatActionBarState, HighlightActionBarState, UserSSO_Struct } from '@src/utility/data_structure';
 import { useEffect } from 'react';
-import { GetEmptyNoteBlock, GetEmptyNotePage, NoteBlockType, NotePageType, NoteRowType } from '@root/src/utility/note_data_struct';
+import { GetEmptyNoteBlock, GetEmptyNotePage, NoteBlockType, NotePageType, NoteParagraphType, NoteRowType } from '@root/src/utility/note_data_struct';
 import { useNoteDictStore, useNoteFocusStore } from './note_zustand';
 import { API, Color, LangaugeCode } from '@root/src/utility/static_data';
 import { MouseHelper } from '@root/src/utility/ui/mouse_helper';
@@ -15,7 +15,7 @@ import { Link, redirect, useNavigate, useParams } from 'react-router-dom';
 import StorageModel from './storge_model';
 import React from 'react';
 import { memo } from 'react';
-import { SideBlockHelper } from './SideBlockHelper';
+import { GenerateKeywordDOM, GenerateValidationDOM, SideBlockHelper } from './SideBlockHelper';
 import { BaseRange, Descendant, Editor, createEditor } from 'slate';
 import { SlateUtility } from '@root/src/utility/slate_editor/slate_utility';
 import { useMemo } from 'react';
@@ -96,7 +96,7 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         }); 
 
         if (concat == "") {
-            sideBlockHelper.delete_block(index);
+            delete_block_by_id_action(page_id, id);
             return;
         }
         
@@ -138,14 +138,22 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         floatActionbar.show(false);
     }
 
-    const trigger_keyword_action = function(selection_type: SelectionCallbackType ) {
+    const trigger_highlight_action = function(action_type: HighlightActionBarState, selection_struct: SelectionCallbackType ) {
 
-            let block_index = selection_type.block_index;
-            let range = selection_type.range;
-            let whole_descendents = selection_type.editor.children;
+            let block_index = selection_struct.block_index;
+            let range = selection_struct.range;
+            let whole_descendents = selection_struct.editor.children;
 
             let block_id = noteFullPage.blocks[block_index]._id;
-            const new_keyword_rows = SlateUtility.create_highLight_rows(range, whole_descendents);
+            const new_keyword_rows = SlateUtility.create_highLight_rows(range, whole_descendents, 
+                (paragraph: NoteParagraphType[]) => { 
+                    if (action_type == HighlightActionBarState.Keyword) return paragraph;
+
+                    paragraph.forEach(x=>x.validation = {is_validated: false});
+
+                    return paragraph;
+                }
+            );
 
             if (new_keyword_rows == undefined) return undefined;
 
@@ -211,9 +219,9 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         floatSelectBar.set_callback((action_type: HighlightActionBarState) => {
             const keyword_struct = selection_callback();
 
-            if (action_type == HighlightActionBarState.Keyword) {
+            if (action_type == HighlightActionBarState.Keyword || action_type == HighlightActionBarState.Validation) {
 
-                let high_light_children = trigger_keyword_action(keyword_struct);
+                let high_light_children = trigger_highlight_action(action_type, keyword_struct);
     
                 if (high_light_children != undefined)
                     keyword_struct.editor.children = high_light_children;    
@@ -237,24 +245,21 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
     }
 
     const on_keyword_delete = function(note_block: NoteBlockType, keyword_id: string, editor: Editor ) {
-        sideBlockHelper.change_block_value(note_block._id, (block: NoteBlockType) => {
+        sideBlockHelper.change_paragraph_value(note_block, keyword_id, editor, (p) => {
+            if (p._id == keyword_id) {
+                p._id = undefined;
+                p.keyword = undefined;
+            }
+            return p;
+        });
+    }
 
-            let delete_key_word_row = SlateUtility.paragraph_operation(note_block.row, (p) => {
-
-                if (p._id == keyword_id) {
-                    p._id = undefined;
-                    p.keyword = undefined;
-                }
-    
-                return p;
-            });
-
-            editor.children = delete_key_word_row;
-
-            let new_block = {...block};
-                new_block = {...new_block, row: delete_key_word_row}
-
-            return new_block;
+    const on_keyword_validate = function(note_block: NoteBlockType, keyword_id: string, validate: boolean, editor: Editor ) {
+        sideBlockHelper.change_paragraph_value(note_block, keyword_id, editor, (p) => {
+            if (p._id == keyword_id) {
+                p.validation = {is_validated: validate}
+            }
+            return p;
         });
     }
 
@@ -301,6 +306,7 @@ return (
         >{noteFullPage.title}</h2>
 
         <BlockSlateContents note_page={noteFullPage} 
+            on_keyword_validate={on_keyword_validate}
             on_keyword_delete={on_keyword_delete}
             on_selection_bar_event={on_selection_bar_event}
             on_slate_title_change={on_slate_title_change}
@@ -322,8 +328,9 @@ return (
 }
 
 const BlockSlateContents = function(
-        {note_page, on_keyword_delete, on_slate_title_change, on_action_bar_click, on_selection_bar_event} : 
+        {note_page, on_keyword_validate, on_keyword_delete, on_slate_title_change, on_action_bar_click, on_selection_bar_event} : 
         {   note_page: NotePageType,
+            on_keyword_validate(note_block: NoteBlockType, keyword_id: string, validate: boolean, editor: Editor),
             on_keyword_delete: (note_block: NoteBlockType, keyword_id: string, editor: Editor) => void,
             on_selection_bar_event: (keyword_action: SelectionActionsCallback) => void,
             on_slate_title_change: (id: string, index: number, value: any[]) => void,
@@ -337,6 +344,7 @@ const BlockSlateContents = function(
 
         array.push(
             <BlockSlateContent note_block={x} version={x.version} index={index} key={x._id}
+            on_keyword_validate={on_keyword_validate}
             on_keyword_delete={on_keyword_delete}
             on_selection_bar_event={on_selection_bar_event}
             on_slate_title_change={on_slate_title_change}
@@ -360,8 +368,9 @@ const BlockSlateContents = function(
 };
 
 
-const BlockSlateContent = memo(function({ note_block, version, index, on_keyword_delete, on_slate_title_change, on_action_bar_click, on_selection_bar_event}: 
+const BlockSlateContent = memo(function({ note_block, version, index, on_keyword_validate, on_keyword_delete, on_slate_title_change, on_action_bar_click, on_selection_bar_event}: 
     {   note_block: NoteBlockType, version: number, index: number,
+        on_keyword_validate(note_block: NoteBlockType, keyword_id: string, validate: boolean, editor: Editor),
         on_keyword_delete: (note_block: NoteBlockType, keyword_id: string, editor: Editor) => void,
         on_slate_title_change: (id: string, index: number, value: any[]) => void,
         on_action_bar_click: (id: string) => void,
@@ -375,34 +384,17 @@ const BlockSlateContent = memo(function({ note_block, version, index, on_keyword
             on_keyword_delete(note_block, key, editor);
         }
 
-        const hover_keyword_tag = function(keyword_id: string, is_hover: boolean) {
-            let target_dom : HTMLElement = document.getElementById(keyword_id.substring(0, 5));
-
-            if (target_dom != undefined) {
-                target_dom.style.background = (is_hover) ?  Color.DarkOrange : Color.LightYellow;
-                target_dom.style.color = (is_hover) ?  "white" : "black";
-
-            }
+        const validate_keyword_action = function(key: string, validate: boolean) {
+            on_keyword_validate(note_block, key, validate, editor);
         }
 
-        keywords.forEach((value, key) => {
-            keyword_dom.push(
-            <div className='keyword_comp' key={key} 
-            onClick={() => {
-                delete_keyword_action(key);
-            }} 
-            
-            onPointerEnter={() => {
-                hover_keyword_tag(key, true);
-            }}
+        for (let value of keywords.values()){
+            if (value.validation == undefined)
+                keyword_dom.push( GenerateKeywordDOM(value, delete_keyword_action));
+            else 
+                keyword_dom.push( GenerateValidationDOM(value, validate_keyword_action, delete_keyword_action));
+        }
 
-            onPointerLeave={() => {
-                hover_keyword_tag(key, false);
-            }}>
-                {value}
-            </div>)
-        }); 
-        
         let display_source_dom = () => {
             if (note_block.source != null)
                 return (<div className='source_comp'>

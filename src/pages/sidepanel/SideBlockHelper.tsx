@@ -2,10 +2,12 @@ import { RenderSelectActionBar, RenderSideActionBar, RenderSourcePanel } from "@
 import { useNoteFocusStore } from "./note_zustand";
 import { MouseHelper } from "@root/src/utility/ui/mouse_helper";
 import { Combine_API } from "@root/src/utility/static_utility";
-import { NoteBlockType, NotePageType, GetEmptyNoteBlock, GetEmptyNotePage } from "@root/src/utility/note_data_struct";
-import { API } from "@root/src/utility/static_data";
+import { NoteBlockType, NotePageType, GetEmptyNoteBlock, GetEmptyNotePage, NoteKeywordType, NoteParagraphType } from "@root/src/utility/note_data_struct";
+import { API, Color } from "@root/src/utility/static_data";
 import StorageModel from "./storge_model";
 import {v4 as uuidv4} from 'uuid';
+import { Editor } from "slate";
+import { SlateUtility } from "@root/src/utility/slate_editor/slate_utility";
 
 export class SideBlockHelper {
     floatSourcePanel: RenderSourcePanel;
@@ -64,6 +66,29 @@ export class SideBlockHelper {
         //UpdateNotionBlock(test_account_id, notePage);
     }
 
+    change_paragraph_value = function(note_block: NoteBlockType, keyword_id: string, editor: Editor, callabck: (p: NoteParagraphType) => NoteParagraphType) {
+        this.change_block_value(note_block._id, (block: NoteBlockType) => {
+            let delete_key_word_row = SlateUtility.paragraph_operation(note_block.row, (p) => {
+    
+                if (p._id == keyword_id) {
+                    p = callabck(p);
+                }
+    
+                return p;
+            });
+    
+            editor.children = delete_key_word_row;
+    
+            let new_block = {...block};
+                new_block = {...new_block, row: delete_key_word_row}
+    
+            return new_block;
+        });
+    }
+
+
+
+
     delete_block(index: number) {
         if (this.notePage == null) return;
 
@@ -93,4 +118,72 @@ export const UpdateNotionBlock = function(user_id: string, note_page: NotePageTy
             note_page: note_page
         })
     });
+}
+
+
+
+const hover_keyword_tag = function(keyword_id: string, is_hover: boolean, hover_color: string) {
+    let target_dom : HTMLElement = document.getElementById(keyword_id.substring(0, 5));
+
+    if (target_dom != undefined) {
+        target_dom.style.background = hover_color;
+        target_dom.style.color = (is_hover) ?  "white" : "black";
+
+        // target_dom.style.background = (is_hover) ?  Color.DarkOrange : Color.LightYellow;
+        // target_dom.style.color = (is_hover) ?  "white" : "black";
     }
+}
+
+export const GenerateKeywordDOM = function(keyword: NoteKeywordType, delete_keyword_action: (key: string) => void) {
+    return (<div className='keyword_comp' key={keyword._id}
+    
+    onClick={() => {
+        delete_keyword_action(keyword._id);
+    }} 
+    
+    onPointerEnter={() => {
+        hover_keyword_tag(keyword._id, true, Color.DarkOrange);
+    }}
+
+    onPointerLeave={() => {
+        hover_keyword_tag(keyword._id, false, Color.ShallowGreen);
+    }}>
+        {keyword.text}
+    </div> );
+}
+
+export const GenerateValidationDOM = function(keyword: NoteKeywordType,
+                                                on_keyword_validate: (key: string, validate: boolean) => void,
+                                                delete_keyword_action: (key: string) => void) 
+{
+    return (<div className='validation_comp' key={keyword._id} data-key={keyword._id}
+            style={{backgroundColor: (keyword.validation.is_validated) ? Color.ShallowRed : Color.ShallowOrange}}
+    
+    // onClick={() => {
+    //     delete_keyword_action(keyword._id);
+    // }} 
+    
+    onPointerEnter={() => {
+        //hover_keyword_tag(keyword._id, true, Color.DarkOrange);
+    }}
+
+    onPointerLeave={() => {
+        //hover_keyword_tag(keyword._id, false, Color.LightYellow);
+    }}>
+
+    <label className="checkbox">
+        <input type="checkbox" onChange={(e) => 
+            {
+                let target_dom : HTMLElement = document.querySelector(`div[data-key="${keyword._id}"]`);
+                target_dom.style.background = (e.target.checked) ? Color.ShallowRed : Color.ShallowOrange;
+
+                on_keyword_validate(keyword._id, e.target.checked);
+            }
+        }
+        checked={keyword.validation.is_validated}
+        ></input>
+        {keyword.text}
+    </label>
+
+    </div> );
+}

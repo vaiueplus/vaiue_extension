@@ -143,7 +143,7 @@ export class RenderSelectActionBar extends AbstractMovable {
         return(
             <div id={this.id}>
                 <button onClick={() => this._callback?.(HighlightActionBarState.Keyword)}>Keyword</button>
-                <button onClick={() => this._callback?.(HighlightActionBarState.DoubleCheck)}>To Check</button>
+                <button onClick={() => this._callback?.(HighlightActionBarState.Validation)}>To Check</button>
                 <button onClick={() => this._callback?.(HighlightActionBarState.Translation)}>Translate</button>
             </div>
         )
@@ -250,7 +250,6 @@ export class RenderTrnaslationActionBar extends AbstractMovable {
                 </div>
 
                 <div className="language_content">
-                    <p>{this._source}</p>
                     <textarea className="textarea source_preview" disabled={true}></textarea>
                     <textarea className="textarea source_translated"></textarea>
                 </div>
