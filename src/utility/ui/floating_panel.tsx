@@ -159,12 +159,13 @@ export class RenderTrnaslationActionBar extends AbstractMovable {
     private _translation: string = "";
 
     private _language_options = [
+                                {'code': LangaugeCode.AutoDetect, 'value': 'Auto' },
                                 {'code': LangaugeCode.English, 'value': 'English' },
                                 {'code': LangaugeCode.Japanese, 'value': '日本語' },
                                 {'code': LangaugeCode.Korea, 'value': '한국어' },
                                 {'code': LangaugeCode.TraditionalChinese, 'value': '正體中文'},
                                 {'code': LangaugeCode.SimplifiedChinese, 'value': '簡體中文'},
-                            ];
+                                ];
 
     constructor() {
         super();
@@ -223,8 +224,7 @@ export class RenderTrnaslationActionBar extends AbstractMovable {
     }
 
     render() {
-
-        let default_source_lang = GetLocalStorageValue(StorageID.TranslationSource, LangaugeCode.English);
+        let default_source_lang = GetLocalStorageValue(StorageID.TranslationSource, LangaugeCode.AutoDetect);
         let default_targetg_lang = GetLocalStorageValue(StorageID.TranslationTarget, LangaugeCode.TraditionalChinese);
         return(
             <div id={this.id}>

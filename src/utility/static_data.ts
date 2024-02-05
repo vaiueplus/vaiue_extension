@@ -20,6 +20,7 @@ export const EventID = Object.freeze({
 });
 
 export const LangaugeCode = Object.freeze({
+    AutoDetect: "Autodetect",
     TraditionalChinese : "zh-hant",
     SimplifiedChinese : 'zh',
     English: "en",
