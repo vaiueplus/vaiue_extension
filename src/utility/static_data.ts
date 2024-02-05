@@ -20,7 +20,7 @@ export const EventID = Object.freeze({
 });
 
 export const LangaugeCode = Object.freeze({
-    TraditionalChinese : "zt",
+    TraditionalChinese : "zh-hant",
     SimplifiedChinese : 'zh',
     English: "en",
     Korea: 'ko',
@@ -42,7 +42,8 @@ export const API = Object.freeze({
 
     PostNoteBlock: "create_or_update_note_page",
 
-    Translation: "https://yuri-api.sytes.net/libretranslate/translate" 
+    Translation: "https://yuri-api.sytes.net/libretranslate/translate",
+    Translation_Memory: 'https://api.mymemory.translated.net/get?q={source}&langpair={lang}',
 });
 
 export const Domain = Object.freeze({
