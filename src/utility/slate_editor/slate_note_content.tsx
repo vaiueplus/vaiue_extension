@@ -2,6 +2,8 @@ import { BaseEditor, Descendant, Operation, createEditor, Selection, BaseRange, 
 import { Slate, Editable, withReact, ReactEditor } from 'slate-react'
 import { HistoryEditor, withHistory } from 'slate-history'
 import { NoteRowType } from '@src/utility/note_data_struct';
+import setting_svg from '@assets/img/settings_applications.svg';
+
 import React, { Fragment, useCallback, useMemo } from 'react'
 import { action } from 'webextension-polyfill';
 
@@ -24,7 +26,7 @@ export default function RenderSlateContent({index, id, editor, version, placehol
 
     let _cacheRange: BaseRange;
     let render_addon_btn = function() {      
-      return <button className='note-block-btn' onClick={() => action_bar_event(id)}>+</button>;
+      return <button className='note-block-btn' onClick={() => action_bar_event(id)}><img src={setting_svg}></img></button>;
     }
 
     

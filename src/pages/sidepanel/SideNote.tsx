@@ -109,8 +109,8 @@ const NoteBodyComp = function({userStruct, storage}: {userStruct: UserSSO_Struct
                 return array;
               }, "");
 
-              if (inner_content.length > 0) 
-                note_title = inner_content
+              // if (inner_content.length > 0) 
+              //   note_title = inner_content
 
               if (note_focus_id == note_block._id) note_item_class += " active"; 
               return (
