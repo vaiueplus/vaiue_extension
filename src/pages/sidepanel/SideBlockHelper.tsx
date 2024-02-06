@@ -8,6 +8,7 @@ import StorageModel from "./storge_model";
 import {v4 as uuidv4} from 'uuid';
 import { Editor } from "slate";
 import { SlateUtility } from "@root/src/utility/slate_editor/slate_utility";
+import trash_can_svg from '@assets/img/trash-can.svg';
 
 export class SideBlockHelper {
     floatSourcePanel: RenderSourcePanel;
@@ -86,9 +87,6 @@ export class SideBlockHelper {
         });
     }
 
-
-
-
     delete_block(index: number) {
         if (this.notePage == null) return;
 
@@ -159,19 +157,26 @@ export const GenerateValidationDOM = function(keyword: NoteKeywordType,
     return (<div className='validation_comp' key={keyword._id} data-key={keyword._id}
             style={{backgroundColor: (keyword.validation.is_validated) ? Color.ShallowRed : Color.ShallowOrange}}
     
-    // onClick={() => {
-    //     delete_keyword_action(keyword._id);
-    // }} 
+    onClick={(e) => {
+        //delete_keyword_action(keyword._id);
+    }} 
+
+    onContextMenu={(e) => {
+        //e.preventDefault();
+    }}
     
     onPointerEnter={() => {
-        //hover_keyword_tag(keyword._id, true, Color.DarkOrange);
+        hover_keyword_tag(keyword._id, true, Color.DarkOrange);
     }}
 
     onPointerLeave={() => {
-        //hover_keyword_tag(keyword._id, false, Color.LightYellow);
+        hover_keyword_tag(keyword._id, false, Color.ShallowOrange);
     }}>
 
+    <div className="context_wrapper"><button onClick={() => delete_keyword_action(keyword._id)}>X</button></div>
+
     <label className="checkbox">
+
         <input type="checkbox" onChange={(e) => 
             {
                 let target_dom : HTMLElement = document.querySelector(`div[data-key="${keyword._id}"]`);
@@ -184,6 +189,5 @@ export const GenerateValidationDOM = function(keyword: NoteKeywordType,
         ></input>
         {keyword.text}
     </label>
-
     </div> );
 }
