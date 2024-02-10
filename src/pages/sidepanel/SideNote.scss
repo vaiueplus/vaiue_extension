@@ -103,7 +103,7 @@ hr {
 
 
 @mixin highlight_mixin {
-    position: relative;
+    //position: relative;
     display: inline-block;
     border-radius: 5px;
     color: v.$color_white;
@@ -116,14 +116,11 @@ hr {
     text-overflow: ellipsis;
 
     .context_wrapper {
-        position: absolute;     
-        top: 0;
-        right: 0;    
         button {
-            position: fixed;
+            position: absolute;
             //margin-bottom: 2em;
             margin-top: -1em;
-            transform: translateX(-50%);
+            transform: translateX(-50%) translateY(-25%);
             border-radius: 0.5em;
             border: 0px solid black;
             &:hover{
