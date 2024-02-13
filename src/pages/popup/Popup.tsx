@@ -17,7 +17,7 @@ const Popup = () => {
       }}>
       <header className="App-header" style={{ color: theme === 'light' ? '#000' : '#fff' }}>
         <img src={logo} className="App-logo" alt="logo" />
-        <p>
+        {/* <p>
           Edit <code>src/pages/popup/Popup.tsx</code> and save to reload.
         </p>
         <a
@@ -35,7 +35,7 @@ const Popup = () => {
           }}
           onClick={exampleThemeStorage.toggle}>
           Toggle theme
-        </button>
+        </button> */}
       </header>
     </div>
   );

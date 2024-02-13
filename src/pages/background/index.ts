@@ -13,6 +13,11 @@ reloadOnUpdate('pages/background');
  */
 reloadOnUpdate('pages/content/style.scss');
 
+chrome.sidePanel
+.setPanelBehavior({ openPanelOnActionClick: true })
+.catch((error) => console.error(error));
+
+
 Browser.runtime.onInstalled.addListener(() => {
     console.log("installed");
 });
@@ -47,7 +52,7 @@ const CreateNewNotePage = function(content: string, note_size: number) {
     note._id = uuidv4();
     note.blocks = [s_block];
 
-    note.title = "Note #"+ note_size;
+    note.title = "Draft #"+ note_size;
     note.date = new Date().toDateString();
 
     return note;

@@ -4,7 +4,7 @@ import withSuspense from '@src/shared/hoc/withSuspense';
 import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
 import { FloatActionBarState, HighlightActionBarState, UserSSO_Struct } from '@src/utility/data_structure';
 import { useEffect } from 'react';
-import { GetEmptyNoteBlock, GetEmptyNotePage, NoteBlockType, NotePageType, NoteParagraphType, NoteRowType } from '@root/src/utility/note_data_struct';
+import { GetEmptyNoteBlock, NoteBlockType, NotePageType, NoteParagraphType, NoteRowType } from '@root/src/utility/note_data_struct';
 import { useNoteDictStore, useNoteFocusStore } from './note_zustand';
 import { API, Color, LangaugeCode } from '@root/src/utility/static_data';
 import { MouseHelper } from '@root/src/utility/ui/mouse_helper';
@@ -87,12 +87,16 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
             return {
                 type: x.type,
                 children: x.children,
+                url: x?.url
             }
         });
 
         let concat = "";
         paragraph.forEach(x=> {
-            concat += x.children.reduce( (accumulator, currentValue) => { return accumulator + currentValue.text}, "");
+            if (x.type != 'paragraph') 
+                concat += ' ';
+            concat += x.children.reduce( (accumulator, currentValue) => { 
+                return accumulator + currentValue.text}, "");
         }); 
 
         if (concat == "") {
@@ -140,24 +144,29 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
 
     const trigger_highlight_action = function(action_type: HighlightActionBarState, selection_struct: SelectionCallbackType ) {
 
-            let block_index = selection_struct.block_index;
-            let range = selection_struct.range;
-            let whole_descendents = selection_struct.editor.children;
+        let block_index = selection_struct.block_index;
+        let range = selection_struct.range;
+        let whole_descendents = selection_struct.editor.children;
 
-            let block_id = noteFullPage.blocks[block_index]._id;
-            const new_keyword_rows = SlateUtility.create_highLight_rows(range, whole_descendents, 
-                (paragraph: NoteParagraphType[]) => { 
-                    if (action_type == HighlightActionBarState.Keyword) return paragraph;
+        let block_id = noteFullPage.blocks[block_index]._id;
 
-                    paragraph.forEach(x=>x.validation = {is_validated: false});
+        const new_keyword_rows = SlateUtility.create_highLight_rows(range, whole_descendents, 
+            (paragraph: NoteParagraphType[]) => { 
+                if (action_type == HighlightActionBarState.Keyword) return paragraph;
 
-                    return paragraph;
-                }
-            );
+                paragraph.forEach(x=>x.validation = {is_validated: false});
 
-            if (new_keyword_rows == undefined) return undefined;
+                return paragraph;
+            }
+        );
 
-            sideBlockHelper.change_block_value(block_id, (block: NoteBlockType) => {
+        if (new_keyword_rows == undefined) return undefined;
+
+        //Insert Images if any
+        let image_rows = noteFullPage.blocks[block_index].row.filter(x=>x.type == 'image');
+            image_rows.forEach(x=>new_keyword_rows.push(x));
+
+        sideBlockHelper.change_block_value(block_id, (block: NoteBlockType) => {
             let new_block = {...block};
 
                 new_block.row = new_keyword_rows

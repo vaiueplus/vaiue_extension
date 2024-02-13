@@ -100,6 +100,8 @@ export class SlateUtility {
         //Prebuild descendent array
         for (let y = 0; y < whole_descendents.length; y++) {
             let d = whole_descendents[y];
+            if (d.type != 'paragraph') continue;
+
             let temp_row : NoteRowType = {type: "paragraph", children: [] };
 
             for (let x = 0; x < d.children.length; x++) { 
@@ -175,7 +177,6 @@ export class SlateUtility {
     static paragraph_operation(note_rows: NoteRowType[], ops: (paragraph: NoteParagraphType) => NoteParagraphType ) {
         let rows : NoteRowType[] = [...note_rows];
         let rows_lens = rows.length;
-        
         for (let k = 0; k < rows_lens; k++) {
             let r : NoteRowType = {...rows[k], children: [] }
 

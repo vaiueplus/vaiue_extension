@@ -2,7 +2,7 @@ import { RenderSelectActionBar, RenderSideActionBar, RenderSourcePanel } from "@
 import { useNoteFocusStore } from "./note_zustand";
 import { MouseHelper } from "@root/src/utility/ui/mouse_helper";
 import { Combine_API } from "@root/src/utility/static_utility";
-import { NoteBlockType, NotePageType, GetEmptyNoteBlock, GetEmptyNotePage, NoteKeywordType, NoteParagraphType } from "@root/src/utility/note_data_struct";
+import { NoteBlockType, NotePageType, GetEmptyNoteBlock, NoteKeywordType, NoteParagraphType } from "@root/src/utility/note_data_struct";
 import { API, Color } from "@root/src/utility/static_data";
 import StorageModel from "./storge_model";
 import {v4 as uuidv4} from 'uuid';
