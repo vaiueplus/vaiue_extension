@@ -306,6 +306,10 @@ return (
 
                 //Resume
                 h_dom_input.onblur = () => {
+                    if (h_dom_input.value == "") {
+                        h_dom_input.value = innerDOM_value;
+                    }
+                    
                     title_dom.innerHTML = h_dom_input.value;
                     on_title_change(""+title_dom.innerHTML);
                 }

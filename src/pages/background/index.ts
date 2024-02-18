@@ -52,7 +52,7 @@ const CreateNewNotePage = function(content: string, note_size: number) {
     note._id = uuidv4();
     note.blocks = [s_block];
 
-    note.title = "Draft #"+ note_size;
+    note.title = "Draft #"+ (note_size + 1);
     note.date = new Date().toDateString();
 
     return note;

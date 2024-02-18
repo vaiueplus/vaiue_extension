@@ -23,27 +23,37 @@ hr {
   padding: 1em 2em;
 
   .note-header-comp {
-      display: flex;
-      align-items: center;
-      justify-content: left;
-      gap: 1em;
-      
-      h2 {
-          font-size: 2em;
-          font-weight: 600;
-      }
+    padding: 1em 0em;
 
-      .note-header-actions{
-          margin-left: auto;
+    img {width: 2em;}
+    .note-header-control-panel{
+        display: flex;
+        align-items: center;
+        justify-content: left;
+        gap: 1em;
+        
+        h2 {
+            font-size: 2em;
+            font-weight: 600;
+        }
+  
+        .note-header-actions{
+            margin-left: auto;
 
-      }
+            button {
+                background-color:  v.$color_grey;
+                
+                &:hover {background-color:  v.$color_dark; }
+            }
+        }
+    }
   }
 
   .note-item-container {
       display: flex;
       flex-direction: column;
       align-items: stretch;
-      gap: 1em;          
+      gap: 1.5em;          
   }
 
   .note-item-comp {
@@ -51,8 +61,9 @@ hr {
       align-items: center;
       justify-content: left;
       border-radius: 1em;
-      border: solid 1px black;
       padding: 0.5em 1em;
+      background-color: v.$color_white_cloud;
+      color: v.$color_grey;
 
         section {
             width: 100%;
@@ -79,18 +90,7 @@ hr {
           }
       }
 
-      &.active{
-          border: solid 1px v.$color_green_shallow;
-          color: v.$color_green_shallow;
-
-          object {
-              filter: brightness(0) saturate(100%) invert(58%) sepia(95%) saturate(336%) hue-rotate(93deg) brightness(94%) contrast(93%);
-          }
-      }
-    
-
       &:hover {
-          border: solid 1px v.$color_light_blue;
           color: v.$color_light_blue;
           cursor:pointer;
 
@@ -144,7 +144,8 @@ hr {
         &:focus{
             outline-style: auto; 
             outline-width: 5px;
-            outline-color: v.$color_green_shallow;;    
+           // outline-color: v.$color_green_shallow;
+            outline: none;
         }
     }
 

@@ -1,7 +1,6 @@
-
+import logo_svg from '@assets/img/logo.svg';
 import '@pages/sidepanel/SideNote.scss';
 import useStorage from '@src/shared/hooks/useStorage';
-import exampleThemeStorage from '@src/shared/storages/exampleThemeStorage';
 import withSuspense from '@src/shared/hoc/withSuspense';
 import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
 import { Link, redirect, useNavigate } from "react-router-dom";
@@ -57,11 +56,15 @@ const NoteHeaderComp = function({userStruct}: {userStruct: UserSSO_Struct}) {
 
   return (
       <div className="note-header-comp">
-          <h2>Draft</h2>
-          <input className="input" type='text' placeholder="Search..."></input>
+
+        <div className='note-header-control-panel'>
+        <img src={logo_svg}></img>
+        <h2>Drafts</h2>
+          {/* <input className="input" type='text' placeholder="Search..."></input> */}
           <section className="note-header-actions">
-              <button className="button is-primary" onClick={create_new_note}>Add</button>
+              <button className="button is-primary" onClick={create_new_note}>+ Add</button>
           </section>
+        </div>
       </div>
   );
 }
@@ -97,7 +100,7 @@ const NoteBodyComp = function({userStruct, storage}: {userStruct: UserSSO_Struct
               let note_item_class = "note-item-comp";
               let note_title = note_block.title;
 
-              if (note_focus_id == note_block._id) note_item_class += " active"; 
+              // if (note_focus_id == note_block._id) note_item_class += " active"; 
               return (
 
                   <Link to={ `note/${note_block?._id}` } className={note_item_class} key={note_block._id} onClick={ () => {
