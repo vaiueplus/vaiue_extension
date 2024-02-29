@@ -1,5 +1,5 @@
 import { RenderSelectActionBar, RenderSideActionBar, RenderSourcePanel } from "@root/src/utility/ui/floating_panel";
-import { useNoteFocusStore } from "./note_zustand";
+import { useNoteDictStore, useNoteFocusStore } from "./note_zustand";
 import { MouseHelper } from "@root/src/utility/ui/mouse_helper";
 import { Combine_API } from "@root/src/utility/static_utility";
 import { NoteBlockType, NotePageType, GetEmptyNoteBlock, NoteKeywordType, NoteParagraphType } from "@root/src/utility/note_data_struct";
@@ -26,6 +26,7 @@ export class SideBlockHelper {
         this.floatActionbar = floatActionBar;
         this.floatSourcePanel = renderSourcePanel;
         this.selectActionBar = renderSelectActionBar;
+
     }
 
     set_parameter(notePage: NotePageType, storage: StorageModel) {
@@ -41,6 +42,8 @@ export class SideBlockHelper {
         this.insert_dict_action = insert_dict_action;
         this.update_dict_action = update_dict_action;
         this.delete_dict_action = delete_dict_action;
+
+        const append_block_action = useNoteDictStore((state) => state.append_block);
     }
 
     get_block (block_id: string) {
@@ -87,17 +90,25 @@ export class SideBlockHelper {
         });
     }
 
-    delete_block(index: number) {
-        if (this.notePage == null) return;
-
-        this.delete_dict_action(this.notePage._id, index);
-    }
-
     add_new_row() {
         if (this.notePage == null) return;
     
         let new_block = GetEmptyNoteBlock();
         new_block._id = uuidv4();
+
+        this.insert_dict_action(this.notePage._id, new_block);
+    }
+
+    add_new_image(image_url: string) {
+        if (this.notePage == null) return;
+    
+        let new_block = GetEmptyNoteBlock();
+        new_block._id = uuidv4();
+
+        new_block.row[0].type = 'image';
+        new_block.row[0].url = image_url;
+
+        new_block.row.push({type: "paragraph", children: [{text: ''}]});
 
         this.insert_dict_action(this.notePage._id, new_block);
     }

@@ -19,6 +19,9 @@ export default function RenderSlateContent({index, id, editor, version, placehol
       selection_bar_event: (keyword_action: SelectionActionsCallback) => void,
      } ) {
 
+    console.log('RenderSlateContent')
+    console.log(default_data)
+
     // const editor = useMemo(() => withHistory(withReact(createEditor())), []);
     const renderLeaf = useCallback( (props: any) => <Leaf {...props} />, [version])
     let value_change_flag = false;
@@ -57,6 +60,12 @@ export default function RenderSlateContent({index, id, editor, version, placehol
 			}
     }
 
+      onBlurCapture={() => {
+      }}
+
+      onFocusCapture={() => {
+      }}
+
       onSelect={() => {
         // console.log("OnSelect Done");
         // console.log(_cacheRange);
@@ -94,6 +103,9 @@ export default function RenderSlateContent({index, id, editor, version, placehol
 
 const Element = (props : any)=> {
   const { attributes, children, element } = props
+
+  console.log(props)
+
   switch (element.type) {
     case 'image':
       return <Image {...props} />
@@ -102,11 +114,47 @@ const Element = (props : any)=> {
   }
 }
 
+export const withImages = editor => {
+  const { insertData, isVoid } = editor
+
+  editor.isVoid = element => {
+    return element.type === 'image' ? true : isVoid(element)
+  }
+
+  // editor.insertData = data => {
+  //   const text = data.getData('text/plain')
+  //   const { files } = data
+
+  //   if (files && files.length > 0) {
+  //     for (const file of files) {
+  //       const reader = new FileReader()
+  //       const [mime] = file.type.split('/')
+
+  //       if (mime === 'image') {
+  //         reader.addEventListener('load', () => {
+  //           const url = reader.result
+  //           insertImage(editor, url)
+  //         })
+
+  //         reader.readAsDataURL(file)
+  //       }
+  //     }
+  //   } else if (isImageUrl(text)) {
+  //     insertImage(editor, text)
+  //   } else {
+  //     insertData(data)
+  //   }
+  // }
+
+  return editor
+}
+
+
 const Image = ({ attributes, children, element } : any) => {
   return (
     <div {...attributes}>
     {children}
-    <div>
+    <div contentEditable={false}>
       <img
         src={element.url}
         />

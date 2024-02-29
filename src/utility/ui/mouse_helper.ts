@@ -30,6 +30,8 @@ export class MouseHelper {
         window.addEventListener("wheel", this.on_common_event.bind(this));
         window.addEventListener("scroll", this.on_common_event.bind(this));
         window.addEventListener("resize", this.on_common_event.bind(this));
+
+        window.addEventListener("paste", this.on_paste_event.bind(this));
     }
 
     public register_mouse_down(callback: (pos: Vector2) => void) {
@@ -44,6 +46,10 @@ export class MouseHelper {
         this._event_system.ListenToEvent(EventID.PageChange, callback);
     }
 
+    public register_paste(callback: (image: Blob) => void) {
+        this._event_system.ListenToEvent(EventID.Paste, callback);
+    }
+
     public dispose() {
         window.removeEventListener("mousedown", this._mouse_down);
         window.removeEventListener("mouseup", this._mouse_up);
@@ -52,6 +58,7 @@ export class MouseHelper {
         document.removeEventListener("wheel", this.on_common_event);
         document.removeEventListener("scroll", this.on_common_event);  
         document.removeEventListener("resize", this.on_common_event);
+        document.removeEventListener("paste", this.on_paste_event);
     }
 
     private on_mouse_down(event: MouseEvent) {
@@ -72,6 +79,19 @@ export class MouseHelper {
             this._common_event_tick = false;
             this._event_system.Notify(EventID.PageChange, new Vector2(MouseHelper.x, MouseHelper.y));
         });
+    }
+
+    private async on_paste_event() {
+        const clipboardContents = await navigator.clipboard.read();
+            
+        for (const clipboardItem of clipboardContents) {
+            const imageTypes = clipboardItem.types.filter(type => type.startsWith('image/'))
+            for (const imageType of imageTypes) {
+                console.log(imageType)
+                const blob = await clipboardItem.getType(imageType);
+                this._event_system.Notify(EventID.Paste, blob); 
+            }
+        }
     }
 
     private on_mouse_move(event: MouseEvent) {

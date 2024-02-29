@@ -17,6 +17,7 @@ export const EventID = Object.freeze({
     Scroll : "event@scroll",
     Resize : "event@resize",
     PageChange : "event@changes",
+    Paste : "event@paste",
 });
 
 export const LangaugeCode = Object.freeze({

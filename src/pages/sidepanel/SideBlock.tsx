@@ -6,24 +6,17 @@ import { FloatActionBarState, HighlightActionBarState, UserSSO_Struct } from '@s
 import { useEffect } from 'react';
 import { GetEmptyNoteBlock, NoteBlockType, NotePageType, NoteParagraphType, NoteRowType } from '@root/src/utility/note_data_struct';
 import { useNoteDictStore, useNoteFocusStore } from './note_zustand';
-import { API, Color, LangaugeCode } from '@root/src/utility/static_data';
 import { MouseHelper } from '@root/src/utility/ui/mouse_helper';
-import { Fragment } from 'react';
-import RenderSlateContent, { SelectionActionsCallback, SelectionCallbackType } from '@root/src/utility/slate_editor/slate_note_content';
 import { RenderSideActionBar, RenderSourcePanel, RenderSelectActionBar,  ShowFloatingBoard, RenderTrnaslationActionBar } from '@root/src/utility/ui/floating_panel';
 import { Link, redirect, useNavigate, useParams } from 'react-router-dom';
 import StorageModel from './storge_model';
-import React from 'react';
-import { memo } from 'react';
 import { GenerateKeywordDOM, GenerateValidationDOM, SideBlockHelper } from './SideBlockHelper';
 import { BaseRange, Descendant, Editor, createEditor } from 'slate';
 import { SlateUtility } from '@root/src/utility/slate_editor/slate_utility';
-import { useMemo } from 'react';
-import { withHistory } from 'slate-history';
-import { withReact } from 'slate-react';
-import { an } from 'vitest/dist/reporters-OH1c16Kq';
-import { translate } from './block_elements/side_api';
-import { GetDomain } from '@root/src/utility/static_utility';
+import { translate, upload_texture } from './block_elements/side_api';
+import { BlockSlateContents } from './block_elements/SideBlockListView';
+import { SideBlockTitleBar } from './block_elements/SideBlockTitleBar';
+import { SelectionActionsCallback, SelectionCallbackType } from '@root/src/utility/slate_editor/slate_note_content';
 
 let floatActionbar = new RenderSideActionBar()
 let floatSourcePanel = new RenderSourcePanel()
@@ -68,6 +61,8 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
             floatSelectBar.show(false);
             floatActionbar.show(false);
         });
+
+        mouse_helper.register_paste(on_paste_event);
 
         return () => {
             floatSourcePanel.dispose();
@@ -244,6 +239,13 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         });
     }
 
+    const on_paste_event = async function(image: Blob) {        
+        const texture_url = await upload_texture(image);
+        if (texture_url == null) return;
+        
+        sideBlockHelper.add_new_image(texture_url);
+    }
+
     const on_source_link_set = function(id: string, link: string) {
         sideBlockHelper.change_block_value(id, (block: NoteBlockType) => {
             let new_block = {...block};
@@ -285,38 +287,13 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
     }
 //#endregion
 
-
-const add_new_row = function() {    
-    sideBlockHelper.add_new_row();
-}
-
 return (
     <div className="preview-comp">
         <Link className='button' to="/">Back</Link>
-        <h2 onClick={(e) => {
-            let title_dom : any = e.target;
-            const innerDOM_value : string = "" + title_dom.innerHTML;
-            title_dom.innerHTML = (`<input type='text' value='${innerDOM_value}'></input>`);
-            
-            const h_dom_input : HTMLInputElement = title_dom.querySelector("input");
 
-            if (h_dom_input != null) {
-                h_dom_input.focus();
-                h_dom_input.setSelectionRange(0, innerDOM_value.length);
-
-                //Resume
-                h_dom_input.onblur = () => {
-                    if (h_dom_input.value == "") {
-                        h_dom_input.value = innerDOM_value;
-                    }
-                    
-                    title_dom.innerHTML = h_dom_input.value;
-                    on_title_change(""+title_dom.innerHTML);
-                }
-            }
-        }
-    }
-        >{noteFullPage.title}</h2>
+        <SideBlockTitleBar on_title_change={on_title_change}>
+            {noteFullPage.title}
+        </SideBlockTitleBar>
 
         <BlockSlateContents note_page={noteFullPage} 
             on_keyword_validate={on_keyword_validate}
@@ -326,7 +303,7 @@ return (
             on_action_bar_click={on_action_bar_click} />
 
         <div className='note_component_footer'>
-            <button className="button is-primary is-light" onClick={add_new_row}>Add+</button>
+            <button className="button is-primary is-light" onClick={() => sideBlockHelper.add_new_row()}>Add+</button>
             <button className='button is-danger is-light' onClick={on_note_delete}>x</button>
         </div>
 
@@ -339,117 +316,5 @@ return (
     </div>
 );
 }
-
-const BlockSlateContents = function(
-        {note_page, on_keyword_validate, on_keyword_delete, on_slate_title_change, on_action_bar_click, on_selection_bar_event} : 
-        {   note_page: NotePageType,
-            on_keyword_validate(note_block: NoteBlockType, keyword_id: string, validate: boolean, editor: Editor),
-            on_keyword_delete: (note_block: NoteBlockType, keyword_id: string, editor: Editor) => void,
-            on_selection_bar_event: (keyword_action: SelectionActionsCallback) => void,
-            on_slate_title_change: (id: string, index: number, value: any[]) => void,
-            on_action_bar_click: (id: string) => void
-        }
-    ) {
-    if (note_page == undefined) return <div></div>
-
-    let initValue : React.JSX.Element[] = []; 
-    note_page.blocks.reduce((array, x, index) => {
-
-        array.push(
-            <BlockSlateContent note_block={x} version={x.version} index={index} key={x._id}
-            on_keyword_validate={on_keyword_validate}
-            on_keyword_delete={on_keyword_delete}
-            on_selection_bar_event={on_selection_bar_event}
-            on_slate_title_change={on_slate_title_change}
-            on_action_bar_click={on_action_bar_click}
-            />
-        );
-
-        return array;
-    }, initValue)
-
-    return (
-        <div>
-            <Fragment>
-            {
-                initValue
-            }
-            
-            </Fragment>
-        </div>
-    )
-};
-
-
-const BlockSlateContent = memo(function({ note_block, version, index, on_keyword_validate, on_keyword_delete, on_slate_title_change, on_action_bar_click, on_selection_bar_event}: 
-    {   note_block: NoteBlockType, version: number, index: number,
-        on_keyword_validate(note_block: NoteBlockType, keyword_id: string, validate: boolean, editor: Editor),
-        on_keyword_delete: (note_block: NoteBlockType, keyword_id: string, editor: Editor) => void,
-        on_slate_title_change: (id: string, index: number, value: any[]) => void,
-        on_action_bar_click: (id: string) => void,
-        on_selection_bar_event: (keyword_action: SelectionActionsCallback) => void,
-    }) {
-        const editor = useMemo(() => withHistory(withReact(createEditor())), []);
-        let keywords = SlateUtility.get_keyword_tags(note_block.row);
-        let keyword_dom = [];
-
-        const delete_keyword_action = function(key: string) {
-            on_keyword_delete(note_block, key, editor);
-        }
-
-        const validate_keyword_action = function(key: string, validate: boolean) {
-            on_keyword_validate(note_block, key, validate, editor);
-        }
-
-        for (let value of keywords.values()){
-            if (value.validation == undefined)
-                keyword_dom.push( GenerateKeywordDOM(value, delete_keyword_action));
-            else 
-                keyword_dom.push( GenerateValidationDOM(value, validate_keyword_action, delete_keyword_action));
-        }
-
-        let display_source_dom = () => {
-            if (note_block.source != null)
-                return (<div className='source_comp'>
-                    <Link to={note_block.source}>{GetDomain(note_block.source)}</Link>
-                </div>)
-            return (<Fragment></Fragment>)
-        }
-
-        return (
-            <div className="note-block-comp">
-                {display_source_dom()}
-                <div className='block-draggable' onMouseDown={(e:any) => {
-                    let m : HTMLDivElement = e.target;
-
-                    // let parent_node = m.parentNode.parentNode;
-                    // cache_draggable_dom = m.parentNode.cloneNode(true) as any;
-                    
-                    // cache_draggable_dom.classList.add('block-draggable-component')
-
-                    // console.log(cache_draggable_dom.classList);
-                    
-
-                    // parent_node.append(cache_draggable_dom);
-                }}></div>
-
-
-
-                <RenderSlateContent id={note_block._id} default_data={note_block.row} editor={editor}
-                index={index} version={version}
-                readOnly={false} 
-                finish_edit_event={on_slate_title_change} 
-                action_bar_event={on_action_bar_click}
-                selection_bar_event={on_selection_bar_event}
-                placeholder_text="Text from gpt"></RenderSlateContent>
-         
-                <div className='keyword_container'>
-                    {keyword_dom}
-                </div>
-            </div>
-        )
-}, (prev, next) => {
-    return prev.version == next.version;
-});
 
 export default withErrorBoundary(withSuspense(SideBlock, <div> Loading ... </div>), <div> Error Occur </div>);
