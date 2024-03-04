@@ -1,0 +1,31 @@
+@use '@src/assets/style/variable.scss' as v;
+@import '@src/assets/style/bulma.min.css';
+
+.account_page {
+    overflow-y: hidden; /* Hide vertical scrollbar */
+    overflow-x: hidden; /* Hide horizontal scrollbar */
+    
+    background-color: v.$color_white_dark;
+    padding: 1em 2em;
+
+    h2 {
+        padding: 1em 0em;
+        font-weight: 700;
+    }
+
+    .account_page_buttons {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.8em;
+
+        button {
+            display: flex;
+            gap: 0.8em;
+            img {
+                width: 2em;
+            }
+        }
+    }
+
+}

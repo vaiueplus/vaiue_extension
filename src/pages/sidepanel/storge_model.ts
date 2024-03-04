@@ -1,8 +1,11 @@
 import { DBAction, MessageID, MessageSender, StorageID } from "@root/src/utility/static_data";
 import Browser from "webextension-polyfill";
 import { form_note_store, useNoteDictStore, useNoteFocusStore } from "./note_zustand";
+import { useUserInfoStore } from "./user_zustand";
+
 import { NoteBlockType, NotePageType } from "@root/src/utility/note_data_struct";
 import { ExtensionMessageStruct } from "@root/src/utility/data_structure";
+import { UserInfo } from "@root/src/utility/static_data_type";
 
 export default class StorageModel {
     private _storage_change_event: any;
@@ -15,10 +18,16 @@ export default class StorageModel {
 
     async initiate() {
         let record = await Browser.storage.local.get(StorageID.Notes);
-        
+        let user_info = await Browser.storage.local.get(StorageID.UserInfo);
+
         if (StorageID.Notes in record) {
-            console.log(record[StorageID.Notes]);
             this.set_notes(record[StorageID.Notes]);
+        }
+
+        if (StorageID.UserInfo in user_info) {
+            console.log("User Info");
+            console.log(user_info[StorageID.UserInfo]);
+            this.set_user_info(user_info[StorageID.UserInfo])
         }
     }
 
@@ -85,5 +94,14 @@ export default class StorageModel {
 
         let messageStruct: ExtensionMessageStruct = { id: MessageID.NoteEnter, sender: MessageSender.SidePanel, body: note_id};
         Browser.runtime.sendMessage(messageStruct);
+    }
+
+    set_user_info(user_info: UserInfo | null) {
+        useUserInfoStore.setState(() => ({user_info: user_info}) );
+        
+        if (user_info == null)
+            Browser.storage.local.remove(StorageID.UserInfo)
+        else
+            Browser.storage.local.set({user_info: user_info});
     }
 }

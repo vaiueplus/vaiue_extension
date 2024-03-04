@@ -68,6 +68,7 @@ export const MessageID = Object.freeze({
 });
 
 export const StorageID = Object.freeze({
+    UserInfo : "user_info",
     Notes : "notes",
     LastVisitNote : "last_visit_note",
 
@@ -90,4 +91,8 @@ export const Color = Object.freeze({
     ShallowOrange: "#e67e22",
     ShallowGreen: "#2ecc71",
     ShallowRed: "#e74c3c",
+});
+
+export const Keys = Object.freeze({
+    GooglePeopleAPIKey: "AIzaSyC5GwtznCj3jISGq9q4UwKJTXiWolS96EU",
 });

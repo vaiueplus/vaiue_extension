@@ -9,3 +9,41 @@
     display: inline-block;
     background-color: v.$color_orange_shallow;
 }
+
+
+.loading_screen{
+    display: none;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+
+    p {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+
+        font-size: 2em;
+        opacity: 1;
+        text-wrap: nowrap;
+    }
+
+    &.is-active {
+        background-color: gray;
+        display: block;
+        animation: fadeInAnimation ease 0.2s;
+        animation-iteration-count: 1;
+        animation-fill-mode: forwards;
+
+    }
+}
+
+@keyframes fadeInAnimation {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 0.9;
+    }
+}

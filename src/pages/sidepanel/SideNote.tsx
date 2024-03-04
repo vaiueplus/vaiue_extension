@@ -1,6 +1,5 @@
 import logo_svg from '@assets/img/logo.svg';
 import '@pages/sidepanel/SideNote.scss';
-import useStorage from '@src/shared/hooks/useStorage';
 import withSuspense from '@src/shared/hoc/withSuspense';
 import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
 import { Link, redirect, useNavigate } from "react-router-dom";
@@ -9,8 +8,6 @@ import { useEffect } from 'react';
 import { GetEmptyNotePage, NotePageType } from '@root/src/utility/note_data_struct';
 import { useNoteDictStore, useNoteFocusStore } from './note_zustand';
 import {v4 as uuidv4} from 'uuid';
-import { Combine_API, FormatString } from '@root/src/utility/static_utility';
-import { API } from '@root/src/utility/static_data';
 import { useState } from 'react';
 import StorageModel from './storge_model';
 
@@ -26,16 +23,14 @@ const SidePanel = ({storage} : {storage: StorageModel}) => {
   }
 
   return (
-    <div className="tool-note-page">
-      {/* <Link to="note/50">Go to the home page</Link> */}
-      
-      <NoteHeaderComp userStruct={static_user}></NoteHeaderComp>
+    <div className="tool-note-page">      
+      <NoteHeaderComp userStruct={static_user} storage={storage}></NoteHeaderComp>
       <NoteBodyComp userStruct={static_user} storage={storage}></NoteBodyComp>
     </div>
   );
 };
 
-const NoteHeaderComp = function({userStruct}: {userStruct: UserSSO_Struct}) {
+const NoteHeaderComp = function({userStruct, storage}: {userStruct: UserSSO_Struct, storage: StorageModel}) {
   const dispatch_note_page_array = useNoteDictStore((state) => state.set_array);
 
   const notes = useNoteDictStore((state) => state.notes_array);
@@ -52,13 +47,11 @@ const NoteHeaderComp = function({userStruct}: {userStruct: UserSSO_Struct}) {
       set_note_dict(new_block);
       note_focus_set(new_block._id);
   }
-  
 
   return (
       <div className="note-header-comp">
-
         <div className='note-header-control-panel'>
-        <img src={logo_svg}></img>
+        <Link to='account'><img src={logo_svg}></img></Link>
         <h2>Drafts</h2>
           {/* <input className="input" type='text' placeholder="Search..."></input> */}
           <section className="note-header-actions">
@@ -88,7 +81,7 @@ const NoteBodyComp = function({userStruct, storage}: {userStruct: UserSSO_Struct
   return (
       <div className="note-body-comp">
 
-      <RenderLoginMessage is_login={is_account_valid}></RenderLoginMessage>
+      {/* <RenderLoginMessage is_login={is_account_valid}></RenderLoginMessage> */}
       
           <div className="note-item-container">
           {

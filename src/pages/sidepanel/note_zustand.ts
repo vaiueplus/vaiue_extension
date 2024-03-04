@@ -106,7 +106,7 @@ export const useNoteDictStore = create<NotePageZusStore>( (set, get) => ({
         }
 
         set( produce( (state : NotePageZusStore) => {
-            state.notes_dict[id].blocks[index] = (block);
+            state.notes_dict[id].blocks[index] = block;
         }));
     },
 

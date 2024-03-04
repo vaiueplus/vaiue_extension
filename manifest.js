@@ -6,10 +6,15 @@ import packageJson from './package.json' assert { type: 'json' };
  */
 const manifest = {
   manifest_version: 3,
-  name: packageJson.name,
+  name: "VAIUE - Draft in Sidebar",
   version: packageJson.version,
   description: packageJson.description,
-  permissions: ['storage', 'sidePanel'],
+  key: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvybZj0roZMxoxcTwC4zcqkZdEO8M1XXzBAgwnDPU2QZOdd2rfmATPPQ+5LBC8MDVxnMro0QZFITqEkL6jPp6/texefzwK1g6b+WXqRIyskx9kYLu88bp6YQcagIoPyajTXmWbgNnIoeDQr59oUVsOdjJ7ZM/p++5bEESA7f2g7WX6wVn669kmQ5TJhd1Bc2juY7RN1Sii4EA1lc1rmktbaa4Pp/WABKX2spGldxFIPprEB9q3+vtNyPK9x9Yrb7vMhtliJEvfz+kMtsI1iRzpeqkiq6xQEV7jUHOvVApZltyC0bSmyQDmjD0lL7nL3bmN7KynTDLxSMwTmrNdBn/4wIDAQAB",
+  oauth2: {
+    client_id: "843366294780-kb7v3ndujfimi1rvhlar7ii20qg4qcb9.apps.googleusercontent.com",
+    scopes:["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email"]
+  },
+  permissions: ['storage', 'sidePanel', "identity"],
   side_panel: {
     default_path: 'src/pages/sidepanel/index.html',
   },

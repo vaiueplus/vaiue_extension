@@ -1,4 +1,63 @@
-import { API } from "@root/src/utility/static_data"
+import { API, Keys } from "@root/src/utility/static_data"
+import { UserInfo } from "@root/src/utility/static_data_type";
+
+export const google_sso_logout = function() {
+    try {
+        return new Promise((resolve, reject) => {
+            chrome.identity.getAuthToken({interactive: true}, function(token) {
+                chrome.identity.removeCachedAuthToken({ token: token }, () => {})
+
+                resolve(fetch(`https://accounts.google.com/o/oauth2/revoke?token=${token}`));
+            });
+          });
+    } catch {
+        return null;
+    }
+}
+
+export const google_sso_login = function() : Promise<UserInfo> { 
+
+    try {
+        return new Promise((resolve, reject) => {
+            chrome.identity.getAuthToken({interactive: true}, function(token) {
+                let init = {
+                  method: 'GET',
+                  async: true,
+                  headers: {
+                    Authorization: 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                  },
+                  'contentType': 'json'
+                };
+        
+                fetch(`https://content-people.googleapis.com/v1/people/me?personFields=emailAddresses,names&key=${Keys.GooglePeopleAPIKey}`,init)
+                    .then((response) => response.json())
+                    .then(function(data) {
+                        
+                        // Get name
+                        let name = data["names"][0]['displayName'];
+    
+                        // Get Email
+                        let email = data["emailAddresses"][0]['value'];
+    
+                        // Get ID
+                        let id = data["emailAddresses"][0]['metadata']['source']['id'];
+                        
+                        resolve({
+                            name: name,
+                            email: email,
+                            id: id
+                        })
+                        
+                    });
+            });
+
+          });
+    } catch {
+        return null;
+    }
+}
+
 
 export const translate = async function(source: string, source_lang: string, target_lang: string): Promise<string> {
     let lang_pair = `${source_lang}|${target_lang}`;

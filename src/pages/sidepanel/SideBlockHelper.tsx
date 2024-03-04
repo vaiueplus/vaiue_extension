@@ -2,7 +2,7 @@ import { RenderSelectActionBar, RenderSideActionBar, RenderSourcePanel } from "@
 import { useNoteDictStore, useNoteFocusStore } from "./note_zustand";
 import { MouseHelper } from "@root/src/utility/ui/mouse_helper";
 import { Combine_API } from "@root/src/utility/static_utility";
-import { NoteBlockType, NotePageType, GetEmptyNoteBlock, NoteKeywordType, NoteParagraphType } from "@root/src/utility/note_data_struct";
+import { NoteBlockType, NotePageType, GetEmptyNoteBlock, NoteKeywordType, NoteParagraphType, NoteRowType } from "@root/src/utility/note_data_struct";
 import { API, Color } from "@root/src/utility/static_data";
 import StorageModel from "./storge_model";
 import {v4 as uuidv4} from 'uuid';
@@ -111,6 +111,30 @@ export class SideBlockHelper {
         new_block.row.push({type: "paragraph", children: [{text: ''}]});
 
         this.insert_dict_action(this.notePage._id, new_block);
+
+        return new_block;
+    }
+
+    insert_new_image(block_id:string, image_url: string) {
+        if (this.notePage == null) return;
+        
+        let image_row: NoteRowType = {
+            type: 'image',
+            url: image_url,
+            children: [{text: ''}]
+        }
+
+        this.change_block_value(block_id, (block: NoteBlockType) => {
+            let new_block = {...block};
+            let rows = [...new_block.row];
+
+            rows.push(image_row);
+            new_block.row = rows;
+
+            return new_block;
+        });
+
+        return image_row;
     }
 }
 

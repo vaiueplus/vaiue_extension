@@ -11,9 +11,11 @@ import { withHistory } from "slate-history";
 import { withReact } from "slate-react";
 import { Editor, createEditor } from "slate";
 import { NoteBlockType } from "@root/src/utility/note_data_struct";
+import { Keys } from "@root/src/utility/static_data";
 
-export const BlockSlateContent = memo(function({ note_block, version, index, on_keyword_validate, on_keyword_delete, on_slate_title_change, on_action_bar_click, on_selection_bar_event}: 
+export const BlockSlateContent = memo(function({ note_block, version, index, focus_event, on_keyword_validate, on_keyword_delete, on_slate_title_change, on_action_bar_click, on_selection_bar_event}: 
     {   note_block: NoteBlockType, version: number, index: number,
+        focus_event: (id: string, index: number, is_focus: boolean, editor: Editor) => void,
         on_keyword_validate(note_block: NoteBlockType, keyword_id: string, validate: boolean, editor: Editor),
         on_keyword_delete: (note_block: NoteBlockType, keyword_id: string, editor: Editor) => void,
         on_slate_title_change: (id: string, index: number, value: any[]) => void,
@@ -50,10 +52,10 @@ export const BlockSlateContent = memo(function({ note_block, version, index, on_
         return (
             <div className="note-block-comp">
                 {display_source_dom()}
-
                 <RenderSlateContent id={note_block._id} default_data={note_block.row} editor={editor}
                 index={index} version={version}
                 readOnly={false} 
+                focus_event={focus_event}
                 finish_edit_event={on_slate_title_change} 
                 action_bar_event={on_action_bar_click}
                 selection_bar_event={on_selection_bar_event}

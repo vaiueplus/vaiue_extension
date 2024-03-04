@@ -5,8 +5,9 @@ import { BlockSlateContent } from "./SideBlockView";
 import { Fragment } from "react";
 
 export const BlockSlateContents = function(
-    {note_page, on_keyword_validate, on_keyword_delete, on_slate_title_change, on_action_bar_click, on_selection_bar_event} : 
+    {note_page, focus_event, on_keyword_validate, on_keyword_delete, on_slate_title_change, on_action_bar_click, on_selection_bar_event} : 
     {   note_page: NotePageType,
+        focus_event: (id: string, index: number, is_focus: boolean, editor: Editor) => void,
         on_keyword_validate(note_block: NoteBlockType, keyword_id: string, validate: boolean, editor: Editor),
         on_keyword_delete: (note_block: NoteBlockType, keyword_id: string, editor: Editor) => void,
         on_selection_bar_event: (keyword_action: SelectionActionsCallback) => void,
@@ -21,6 +22,7 @@ note_page.blocks.reduce((array, x, index) => {
 
     array.push(
         <BlockSlateContent note_block={x} version={x.version} index={index} key={x._id}
+        focus_event={focus_event}
         on_keyword_validate={on_keyword_validate}
         on_keyword_delete={on_keyword_delete}
         on_selection_bar_event={on_selection_bar_event}

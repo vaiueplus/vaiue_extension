@@ -17,6 +17,8 @@ import { translate, upload_texture } from './block_elements/side_api';
 import { BlockSlateContents } from './block_elements/SideBlockListView';
 import { SideBlockTitleBar } from './block_elements/SideBlockTitleBar';
 import { SelectionActionsCallback, SelectionCallbackType } from '@root/src/utility/slate_editor/slate_note_content';
+import { LoadingScreenView, render_loading_screen } from './block_elements/loading_screen';
+import { useState } from 'react';
 
 let floatActionbar = new RenderSideActionBar()
 let floatSourcePanel = new RenderSourcePanel()
@@ -24,6 +26,13 @@ let floatSelectBar = new RenderSelectActionBar()
 let floatTranslationBar = new RenderTrnaslationActionBar()
 
 const sideBlockHelper = new SideBlockHelper(floatActionbar, floatSourcePanel, floatSelectBar);
+
+interface FocusState {
+    editor: Editor,
+    id: string,
+}
+
+let focus_state: FocusState | null = null;
 
 const SideBlock = ({storage} : {storage: StorageModel}) => {
     let { page_id } = useParams();
@@ -38,6 +47,7 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
 
     const set_page_action = useNoteDictStore((state) => state.set);
     const remove_note_action = useNoteDictStore((state) => state.remove);
+    const [loadVisibility, setLoadVisibility] = useState(false)
 
     let notes_dict = useNoteDictStore((state) => state.notes_dict);
     let noteFullPage = notes_dict[page_id];
@@ -239,11 +249,24 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         });
     }
 
-    const on_paste_event = async function(image: Blob) {        
+    const on_paste_event = async function(image: Blob) {       
+        setLoadVisibility(true)
+ 
         const texture_url = await upload_texture(image);
+
+        setLoadVisibility(false)
+
         if (texture_url == null) return;
-        
-        sideBlockHelper.add_new_image(texture_url);
+
+        if (focus_state == null) {
+            sideBlockHelper.add_new_image(texture_url);
+        } else {
+            let insert_row = sideBlockHelper.insert_new_image(focus_state.id, texture_url);
+            let slate_children = [...focus_state.editor.children];
+            slate_children.push(insert_row);
+
+            focus_state.editor.children = slate_children;
+        }
     }
 
     const on_source_link_set = function(id: string, link: string) {
@@ -285,6 +308,18 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         storage.delete_note_to_background(page_id);
         remove_note_action(page_id);
     }
+
+    const on_focus_event = function(id: string, index: number, focus: boolean, editor: Editor) {
+        //console.log(`id ${id}, index ${index}, focus ${focus}`)
+
+        if (!focus && (focus_state != null && focus_state.id == id)) {
+            focus_state = null;
+        }
+
+        if (focus) {
+            focus_state = {id: id, editor: editor}
+        }
+    }
 //#endregion
 
 return (
@@ -296,11 +331,13 @@ return (
         </SideBlockTitleBar>
 
         <BlockSlateContents note_page={noteFullPage} 
+            focus_event={on_focus_event}
             on_keyword_validate={on_keyword_validate}
             on_keyword_delete={on_keyword_delete}
             on_selection_bar_event={on_selection_bar_event}
             on_slate_title_change={on_slate_title_change}
-            on_action_bar_click={on_action_bar_click} />
+            on_action_bar_click={on_action_bar_click}
+             />
 
         <div className='note_component_footer'>
             <button className="button is-primary is-light" onClick={() => sideBlockHelper.add_new_row()}>Add+</button>
@@ -312,6 +349,7 @@ return (
             { floatActionbar.render() }
             { floatSelectBar.render() }
             { floatTranslationBar.render() }
+            { render_loading_screen("Uploading . . .", loadVisibility)  }
         </div>
     </div>
 );

@@ -87,7 +87,6 @@ export class MouseHelper {
         for (const clipboardItem of clipboardContents) {
             const imageTypes = clipboardItem.types.filter(type => type.startsWith('image/'))
             for (const imageType of imageTypes) {
-                console.log(imageType)
                 const blob = await clipboardItem.getType(imageType);
                 this._event_system.Notify(EventID.Paste, blob); 
             }

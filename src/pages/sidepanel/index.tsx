@@ -16,6 +16,7 @@ import {
 import StorageModel from './storge_model';
 import withErrorBoundary from '@root/src/shared/hoc/withErrorBoundary';
 import withSuspense from '@root/src/shared/hoc/withSuspense';
+import { AccountPage } from './account/AccountPage';
 
 const createRouter = function (storage: StorageModel) {  
   return createMemoryRouter([
@@ -30,8 +31,8 @@ const createRouter = function (storage: StorageModel) {
     },
 
     {
-      path: "/admin",
-      element: (<p>Where is the place to add road</p>),
+      path: "/account",
+      element: <AccountPage storage={storage}></AccountPage>,
     },
   ]);
 }; 

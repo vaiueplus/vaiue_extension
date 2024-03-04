@@ -11,16 +11,15 @@ export type SelectionFunction = (block_index: number, range: BaseRange, selected
 export type SelectionActionsCallback = () => SelectionCallbackType;
 export type SelectionCallbackType =  {block_index: number, fragment: Descendant[], range: BaseRange, editor: Editor};
 
-export default function RenderSlateContent({index, id, editor, version, placeholder_text, default_data, readOnly, finish_edit_event, action_bar_event, selection_bar_event }: 
+export default function RenderSlateContent({index, id, editor, version, placeholder_text, default_data, readOnly,
+    focus_event, finish_edit_event, action_bar_event, selection_bar_event }: 
     {index: number, id: string, editor: BaseEditor & ReactEditor & HistoryEditor, 
       version:number, placeholder_text: string, default_data: any[], readOnly: boolean, 
+      focus_event: (id: string, index: number, is_focus: boolean, editor: Editor) => void,
       finish_edit_event: (id: string, index: number, value: Descendant[]) => void, 
       action_bar_event: (id: string) => void,
       selection_bar_event: (keyword_action: SelectionActionsCallback) => void,
      } ) {
-
-    console.log('RenderSlateContent')
-    console.log(default_data)
 
     // const editor = useMemo(() => withHistory(withReact(createEditor())), []);
     const renderLeaf = useCallback( (props: any) => <Leaf {...props} />, [version])
@@ -31,7 +30,6 @@ export default function RenderSlateContent({index, id, editor, version, placehol
     let render_addon_btn = function() {      
       return <button className='note-block-btn' onClick={() => action_bar_event(id)}><img src={setting_svg}></img></button>;
     }
-
     
     return (
       <Slate editor={editor}  initialValue={default_data}
@@ -61,9 +59,11 @@ export default function RenderSlateContent({index, id, editor, version, placehol
     }
 
       onBlurCapture={() => {
+        focus_event(id, index, false, editor)
       }}
 
       onFocusCapture={() => {
+        focus_event(id, index, true, editor)
       }}
 
       onSelect={() => {
@@ -103,8 +103,6 @@ export default function RenderSlateContent({index, id, editor, version, placehol
 
 const Element = (props : any)=> {
   const { attributes, children, element } = props
-
-  console.log(props)
 
   switch (element.type) {
     case 'image':
