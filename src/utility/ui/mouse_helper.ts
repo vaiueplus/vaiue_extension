@@ -3,7 +3,6 @@
 import { EventID } from "@src/utility/static_data";
 import EventSystem from "@src/utility/EventSystem";
 import { Vector2 } from "@src/utility/VectorMath";
-import { DoDelayAction } from "../static_utility";
 
 export class MouseHelper {
     static x: number = 0;

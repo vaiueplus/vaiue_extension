@@ -1,6 +1,6 @@
 import { Vector2 } from "@src/utility/VectorMath";
 import { PointBoxSection } from "@src/utility/static_utility";
-import { MovePanelToPos } from "./floating_panel";
+import { MovePanelToPos } from "./floating_panels/floating_interface";
 
 export class AbstractMovable {
     id : string = "";

@@ -1,4 +1,5 @@
 import {v4 as uuidv4} from 'uuid';
+import { P } from 'vitest/dist/reporters-OH1c16Kq';
 
 export const GetEmptyNotePage = function() {
     let new_block : NotePageType = {
@@ -56,16 +57,22 @@ export type NoteParagraphType = {
     bold?: boolean,
     italic?: boolean,
     keyword?: boolean,
+    comments?: NoteCommentsType[],
     validation?: NoteValidationType,
     hover?: boolean,
     _id?: string // Use to group keyword together
 }
 
-export type NoteKeywordType = {
+export type NoteCommentsType = {
     _id: string,
-    text: string,
+    text: string
+}
 
-    validation?: NoteValidationType,
+export type NoteKeywordType = {
+    paragraph: NoteParagraphType,
+
+    block_id: string,
+    text: string,
 }
 
 export type NoteValidationType = {
@@ -77,4 +84,6 @@ export const NoteSourceTexStatic = Object.freeze({
     bard: "",
     claude: ""
 });
+
+
 

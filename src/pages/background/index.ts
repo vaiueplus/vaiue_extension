@@ -39,6 +39,8 @@ Browser.runtime.onMessage.addListener(
             if (message.sender == MessageSender.SidePanel && message.id == MessageID.NoteEnter) 
                 OnSidePanelLastNote(message.body)
 
+            if (message.sender == MessageSender.SidePanel && message.id == MessageID.OpenURL) 
+                OpenTabURL(message.body)
         } catch{
 
         }
@@ -145,6 +147,11 @@ const DeleteSidePanelNote = async function(note_id: string) {
         local_notes.splice(index, 1);
 
     Browser.storage.local.set({notes: local_notes}); 
+}
+
+const OpenTabURL = function(url: string) {
+    console.log(url)
+    chrome.tabs.create({ url: url });
 }
 //#endregion
 

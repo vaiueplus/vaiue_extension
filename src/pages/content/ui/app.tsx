@@ -1,7 +1,7 @@
 import { ExtensionMessageStruct } from '@root/src/utility/data_structure';
 import { MessageID, MessageSender, StorageID } from '@root/src/utility/static_data';
 import { DoDelayAction } from '@root/src/utility/static_utility';
-import { RenderHighlightBar } from '@root/src/utility/ui/floating_panel';
+import { RenderHighlightBar } from '@root/src/utility/ui/floating_panels/floating_interface';
 import { MouseHelper } from '@root/src/utility/ui/mouse_helper';
 import { useEffect } from 'react';
 import Browser from 'webextension-polyfill';

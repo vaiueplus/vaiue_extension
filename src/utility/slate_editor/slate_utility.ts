@@ -75,7 +75,7 @@ export class SlateUtility {
         return [paragraph];
     }
 
-    static create_highLight_rows(range: BaseRange, whole_descendents: any[], 
+    static create_highLight_rows(range: BaseRange, whole_descendents: any[], paragraph_lookup_table: any,
                                 callback_ops: (paragraph: NoteParagraphType[]) => NoteParagraphType[] = null) {
 
         if (range == undefined) return null;
@@ -106,6 +106,10 @@ export class SlateUtility {
 
             for (let x = 0; x < d.children.length; x++) { 
                 let current_paragraph : NoteParagraphType = {...d.children[x]};
+
+                if (current_paragraph._id in paragraph_lookup_table) {
+                    current_paragraph.comments = paragraph_lookup_table[current_paragraph._id].comments;
+                }
 
                 //If not include in selection
                 if (y < start_y || y > end_y || 
@@ -143,7 +147,7 @@ export class SlateUtility {
     }
 
 
-    static get_keyword_tags(note_rows: NoteRowType[]) : Map<string, NoteKeywordType> {
+    static get_keyword_tags(block_id: string, note_rows: NoteRowType[]) : Map<string, NoteKeywordType> {
         let dict = new Map<string, NoteKeywordType>();
 
         note_rows.forEach(r => {
@@ -164,7 +168,7 @@ export class SlateUtility {
                 let text = r.children[i].text;
                     text = previous_string + text;
                 
-                let keyword_type: NoteKeywordType = { text: text, _id:r.children[i]._id, validation: r.children[i].validation }; 
+                let keyword_type: NoteKeywordType = { paragraph: r.children[i], block_id: block_id, text: text }; 
 
                 if (text.length > 0)
                     dict.set(r.children[i]._id, keyword_type);

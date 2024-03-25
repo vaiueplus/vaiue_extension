@@ -4,14 +4,14 @@ import withSuspense from '@src/shared/hoc/withSuspense';
 import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
 import { FloatActionBarState, HighlightActionBarState, UserSSO_Struct } from '@src/utility/data_structure';
 import { useEffect } from 'react';
-import { GetEmptyNoteBlock, NoteBlockType, NotePageType, NoteParagraphType, NoteRowType } from '@root/src/utility/note_data_struct';
-import { useNoteDictStore, useNoteFocusStore } from './note_zustand';
+import { GetEmptyNoteBlock, NoteBlockType, NoteCommentsType, NoteKeywordType, NotePageType, NoteParagraphType, NoteRowType } from '@root/src/utility/note_data_struct';
+import { useNoteDictStore } from './note_zustand';
 import { MouseHelper } from '@root/src/utility/ui/mouse_helper';
-import { RenderSideActionBar, RenderSourcePanel, RenderSelectActionBar,  ShowFloatingBoard, RenderTrnaslationActionBar } from '@root/src/utility/ui/floating_panel';
-import { Link, redirect, useNavigate, useParams } from 'react-router-dom';
+import { RenderSideActionBar, RenderSourcePanel, RenderSelectActionBar,  ShowFloatingBoard } from '@root/src/utility/ui/floating_panels/floating_interface';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import StorageModel from './storge_model';
-import { GenerateKeywordDOM, GenerateValidationDOM, SideBlockHelper } from './SideBlockHelper';
-import { BaseRange, Descendant, Editor, createEditor } from 'slate';
+import { SideBlockHelper } from './SideBlockHelper';
+import { Editor } from 'slate';
 import { SlateUtility } from '@root/src/utility/slate_editor/slate_utility';
 import { translate, upload_texture } from './block_elements/side_api';
 import { BlockSlateContents } from './block_elements/SideBlockListView';
@@ -19,11 +19,17 @@ import { SideBlockTitleBar } from './block_elements/SideBlockTitleBar';
 import { SelectionActionsCallback, SelectionCallbackType } from '@root/src/utility/slate_editor/slate_note_content';
 import { LoadingScreenView, render_loading_screen } from './block_elements/loading_screen';
 import { useState } from 'react';
+import { RenderTrnaslationActionBar } from '@root/src/utility/ui/floating_panels/translation_panel';
+import { RenderCommentBar } from '@root/src/utility/ui/floating_panels/comment_panel';
+import EventSystem from '@root/src/utility/EventSystem';
+import { NoteUIEventID } from '@root/src/utility/static_data';
+import { useCommentStore } from '@root/src/utility/ui/floating_panels/comment_zustand';
 
 let floatActionbar = new RenderSideActionBar()
 let floatSourcePanel = new RenderSourcePanel()
 let floatSelectBar = new RenderSelectActionBar()
 let floatTranslationBar = new RenderTrnaslationActionBar()
+let floatCommentBar = new RenderCommentBar()
 
 const sideBlockHelper = new SideBlockHelper(floatActionbar, floatSourcePanel, floatSelectBar);
 
@@ -37,6 +43,7 @@ let focus_state: FocusState | null = null;
 const SideBlock = ({storage} : {storage: StorageModel}) => {
     let { page_id } = useParams();
     const navigate = useNavigate();
+    const get_block_action = useNoteDictStore((state) => state.get_block);
 
     const append_block_action = useNoteDictStore((state) => state.append_block);
     const insert_block_action = useNoteDictStore((state) => state.insert_block);
@@ -44,6 +51,8 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
     const delete_block_action = useNoteDictStore((state) => state.delete_block);
     const delete_block_by_id_action = useNoteDictStore((state) => state.delete_block_by_id);
     const offset_block_action = useNoteDictStore((state) => state.offset);
+
+    const set_current_comments = useCommentStore((state) => state.set_comments);
 
     const set_page_action = useNoteDictStore((state) => state.set);
     const remove_note_action = useNoteDictStore((state) => state.remove);
@@ -56,6 +65,7 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
     sideBlockHelper.set_parameter(noteFullPage, storage);
     storage.save_note_to_background(noteFullPage);
 
+
     // //OnDestroy
     useEffect(() => {
         let mouse_helper = new MouseHelper();
@@ -65,6 +75,7 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
             floatActionbar.mouse_down_event(pos);
             floatSelectBar.mouse_down_event(pos);
             floatTranslationBar.mouse_down_event(pos);
+            floatCommentBar.mouse_down_event(pos);
         });
 
         mouse_helper.register_changes(() => {
@@ -79,6 +90,7 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
             floatActionbar.dispose();
             floatSelectBar.dispose();
             floatTranslationBar.dispose();
+            floatCommentBar.dispose();
 
             mouse_helper.dispose();
         };
@@ -155,7 +167,16 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
 
         let block_id = noteFullPage.blocks[block_index]._id;
 
-        const new_keyword_rows = SlateUtility.create_highLight_rows(range, whole_descendents, 
+        //Resume previous comments
+        let comment_table = {};
+        for (let row_index = 0; row_index < noteFullPage.blocks[block_index].row.length; row_index++) {
+            for (let p_index = 0; p_index < noteFullPage.blocks[block_index].row[row_index].children.length; p_index++) {
+                let paragraph = noteFullPage.blocks[block_index].row[row_index].children[p_index];
+                comment_table[paragraph._id] = paragraph;
+            }
+        }
+
+        const new_keyword_rows = SlateUtility.create_highLight_rows(range, whole_descendents, comment_table,
             (paragraph: NoteParagraphType[]) => { 
                 if (action_type == HighlightActionBarState.Keyword) return paragraph;
 
@@ -170,6 +191,9 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         //Insert Images if any
         let image_rows = noteFullPage.blocks[block_index].row.filter(x=>x.type == 'image');
             image_rows.forEach(x=>new_keyword_rows.push(x));
+
+
+        noteFullPage.blocks[block_index].row.findIndex
 
         sideBlockHelper.change_block_value(block_id, (block: NoteBlockType) => {
             let new_block = {...block};
@@ -320,6 +344,49 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
             focus_state = {id: id, editor: editor}
         }
     }
+
+    const on_ui_event = function(id: string, data?: any) {
+        switch(id) {
+            case NoteUIEventID.CommentClose:{
+                floatCommentBar.show(false);
+            }
+            break;
+
+            case NoteUIEventID.CommentOpen:{
+                if (floatCommentBar.is_show) {
+                    floatCommentBar.show(false);
+                    return;
+                }
+
+                let keyword: NoteKeywordType = data;
+                let dom = document.querySelector(`.keyword_container [data-key="${keyword.paragraph._id}"]`);
+                let dom_bound = dom.getBoundingClientRect();
+                const y_offset = 30;
+                let y_pos = (dom_bound.top + y_offset);
+                
+                set_current_comments((keyword.paragraph.comments != undefined) ? keyword.paragraph.comments : []);
+                
+                floatCommentBar.show(true);
+                floatCommentBar.set_position(
+                    (document.body.clientWidth - floatCommentBar.get_bound().width) * 0.5, y_pos
+                );
+                floatCommentBar.set_variable(keyword);
+            }
+            break;
+
+            case NoteUIEventID.CommentConfirm: {
+                let keyword: NoteKeywordType = data.keyword;
+                let comments: NoteCommentsType[] = data.comments;
+
+                let note_block = get_block_action(page_id, keyword.block_id);
+                sideBlockHelper.change_paragraph_value(note_block, keyword.paragraph._id, null, (p) => {
+                    p.comments = comments;
+                    return p;
+                });
+            }
+            break;
+        }
+    }
 //#endregion
 
 return (
@@ -337,6 +404,7 @@ return (
             on_selection_bar_event={on_selection_bar_event}
             on_slate_title_change={on_slate_title_change}
             on_action_bar_click={on_action_bar_click}
+            on_ui_event={on_ui_event}
              />
 
         <div className='note_component_footer'>
@@ -349,7 +417,9 @@ return (
             { floatActionbar.render() }
             { floatSelectBar.render() }
             { floatTranslationBar.render() }
+            { floatCommentBar.render(on_ui_event) }
             { render_loading_screen("Uploading . . .", loadVisibility)  }
+            
         </div>
     </div>
 );

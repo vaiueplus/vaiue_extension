@@ -11,9 +11,12 @@ import { withHistory } from "slate-history";
 import { withReact } from "slate-react";
 import { Editor, createEditor } from "slate";
 import { NoteBlockType } from "@root/src/utility/note_data_struct";
-import { Keys } from "@root/src/utility/static_data";
+import { HighlightKeyTable, Keys, MessageID, MessageSender } from "@root/src/utility/static_data";
+import { ExtensionMessageStruct } from "@root/src/utility/data_structure";
+import Browser from "webextension-polyfill";
 
-export const BlockSlateContent = memo(function({ note_block, version, index, focus_event, on_keyword_validate, on_keyword_delete, on_slate_title_change, on_action_bar_click, on_selection_bar_event}: 
+export const BlockSlateContent = memo(function({ note_block, version, index, focus_event, on_keyword_validate, on_keyword_delete, 
+                                                on_slate_title_change, on_action_bar_click, on_selection_bar_event, on_ui_event}: 
     {   note_block: NoteBlockType, version: number, index: number,
         focus_event: (id: string, index: number, is_focus: boolean, editor: Editor) => void,
         on_keyword_validate(note_block: NoteBlockType, keyword_id: string, validate: boolean, editor: Editor),
@@ -21,9 +24,10 @@ export const BlockSlateContent = memo(function({ note_block, version, index, foc
         on_slate_title_change: (id: string, index: number, value: any[]) => void,
         on_action_bar_click: (id: string) => void,
         on_selection_bar_event: (keyword_action: SelectionActionsCallback) => void,
+        on_ui_event: (id: string, data?: any) => void
     }) {
         const editor = useMemo(() => withImages(withHistory(withReact(createEditor()))), []);
-        let keywords = SlateUtility.get_keyword_tags(note_block.row);
+        let keywords = SlateUtility.get_keyword_tags(note_block._id, note_block.row);
         let keyword_dom = [];
 
         const delete_keyword_action = function(key: string) {
@@ -35,16 +39,19 @@ export const BlockSlateContent = memo(function({ note_block, version, index, foc
         }
 
         for (let value of keywords.values()){
-            if (value.validation == undefined)
-                keyword_dom.push( GenerateKeywordDOM(value, delete_keyword_action));
+            if (value.paragraph.validation == undefined)
+                keyword_dom.push( GenerateValidationDOM(value, HighlightKeyTable.KEYWORD, validate_keyword_action, delete_keyword_action, on_ui_event));
             else 
-                keyword_dom.push( GenerateValidationDOM(value, validate_keyword_action, delete_keyword_action));
+                keyword_dom.push( GenerateValidationDOM(value, HighlightKeyTable.VALIDATION, validate_keyword_action, delete_keyword_action, on_ui_event));
         }
 
         let display_source_dom = () => {
             if (note_block.source != null)
                 return (<div className='source_comp'>
-                    <Link to={note_block.source}>{GetDomain(note_block.source)}</Link>
+                    <Link to={note_block.source} onClick={() => {
+                        let messageStruct: ExtensionMessageStruct = { id: MessageID.OpenURL, sender: MessageSender.SidePanel, body: note_block.source};
+                        Browser.runtime.sendMessage(messageStruct);
+                    }}  >{GetDomain(note_block.source)}</Link>
                 </div>)
             return (<Fragment></Fragment>)
         }

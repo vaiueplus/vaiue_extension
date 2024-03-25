@@ -1,14 +1,15 @@
-import { RenderSelectActionBar, RenderSideActionBar, RenderSourcePanel } from "@root/src/utility/ui/floating_panel";
+import { RenderSelectActionBar, RenderSideActionBar, RenderSourcePanel } from "@root/src/utility/ui/floating_panels/floating_interface";
 import { useNoteDictStore, useNoteFocusStore } from "./note_zustand";
 import { MouseHelper } from "@root/src/utility/ui/mouse_helper";
 import { Combine_API } from "@root/src/utility/static_utility";
 import { NoteBlockType, NotePageType, GetEmptyNoteBlock, NoteKeywordType, NoteParagraphType, NoteRowType } from "@root/src/utility/note_data_struct";
-import { API, Color } from "@root/src/utility/static_data";
+import { API, Color, HighlightConfigTable, HighlightKeyTable, NoteUIEventID } from "@root/src/utility/static_data";
 import StorageModel from "./storge_model";
 import {v4 as uuidv4} from 'uuid';
 import { Editor } from "slate";
 import { SlateUtility } from "@root/src/utility/slate_editor/slate_utility";
 import trash_can_svg from '@assets/img/trash-can.svg';
+import { Fragment } from "react";
 
 export class SideBlockHelper {
     floatSourcePanel: RenderSourcePanel;
@@ -80,8 +81,8 @@ export class SideBlockHelper {
     
                 return p;
             });
-    
-            editor.children = delete_key_word_row;
+            
+            if (editor != null) editor.children = delete_key_word_row;
     
             let new_block = {...block};
                 new_block = {...new_block, row: delete_key_word_row}
@@ -167,30 +168,38 @@ const hover_keyword_tag = function(keyword_id: string, is_hover: boolean, hover_
     }
 }
 
-export const GenerateKeywordDOM = function(keyword: NoteKeywordType, delete_keyword_action: (key: string) => void) {
-    return (<div className='keyword_comp' key={keyword._id}
+export const GenerateKeywordDOM = function(keyword: NoteKeywordType, type_id: string, delete_keyword_action: (key: string) => void) {
+    return (<div className='keyword_comp' data-id={keyword.paragraph._id} key={keyword.paragraph._id}
     
     onClick={() => {
-        delete_keyword_action(keyword._id);
+        delete_keyword_action(keyword.paragraph._id);
     }} 
     
     onPointerEnter={() => {
-        hover_keyword_tag(keyword._id, true, Color.DarkOrange);
+        hover_keyword_tag(keyword.paragraph._id, true, Color.DarkOrange);
     }}
 
     onPointerLeave={() => {
-        hover_keyword_tag(keyword._id, false, Color.ShallowGreen);
+        hover_keyword_tag(keyword.paragraph._id, false, Color.ShallowGreen);
     }}>
         {keyword.text}
     </div> );
 }
 
-export const GenerateValidationDOM = function(keyword: NoteKeywordType,
-                                                on_keyword_validate: (key: string, validate: boolean) => void,
-                                                delete_keyword_action: (key: string) => void) 
+export const GenerateValidationDOM = function(
+    keyword: NoteKeywordType,
+    type_id: string,
+    on_keyword_validate: (key: string, validate: boolean) => void,
+    delete_keyword_action: (key: string) => void,
+    on_ui_event: (id: string, data?: any) => void) 
 {
-    return (<div className='validation_comp' key={keyword._id} data-key={keyword._id}
-            style={{backgroundColor: (keyword.validation.is_validated) ? Color.ShallowRed : Color.ShallowOrange}}
+
+    let has_comments = keyword.paragraph.comments != undefined && keyword.paragraph.comments.length > 0;
+
+    return (<div className={HighlightConfigTable[type_id][HighlightKeyTable.CLASS_NAME]} key={keyword.paragraph._id} data-key={keyword.paragraph._id}
+            style={
+                (keyword.paragraph.validation == undefined) ? {} :
+                {backgroundColor: (keyword.paragraph.validation.is_validated) ? Color.ShallowRed : Color.ShallowOrange} }
     
     onClick={(e) => {
         //delete_keyword_action(keyword._id);
@@ -201,28 +210,44 @@ export const GenerateValidationDOM = function(keyword: NoteKeywordType,
     }}
     
     onPointerEnter={() => {
-        hover_keyword_tag(keyword._id, true, Color.DarkOrange);
+        hover_keyword_tag(keyword.paragraph._id, true, HighlightConfigTable[type_id][HighlightKeyTable.POINTER_ENTER]);
     }}
 
     onPointerLeave={() => {
-        hover_keyword_tag(keyword._id, false, Color.ShallowOrange);
+        hover_keyword_tag(keyword.paragraph._id, false, HighlightConfigTable[type_id][HighlightKeyTable.POINTER_LEAVE]);
     }}>
 
-    <div className="context_wrapper"><button onClick={() => delete_keyword_action(keyword._id)}>X</button></div>
+    <div className="context_wrapper"><button onClick={() => delete_keyword_action(keyword.paragraph._id)}>X</button></div>
 
-    <label className="checkbox">
+    <section>
+        
+        {/* This section is for validation check box */}
+        {
+            (() => {
 
-        <input type="checkbox" onChange={(e) => 
-            {
-                let target_dom : HTMLElement = document.querySelector(`div[data-key="${keyword._id}"]`);
-                target_dom.style.background = (e.target.checked) ? Color.ShallowRed : Color.ShallowOrange;
+                if (keyword.paragraph.validation == undefined) return (<Fragment></Fragment>);
 
-                on_keyword_validate(keyword._id, e.target.checked);
+                return (<input className="checkbox" type="checkbox" onChange={(e) => 
+                    {
+                        let target_dom : HTMLElement = document.querySelector(`div[data-key="${keyword.paragraph._id}"]`);
+                        target_dom.style.background = (e.target.checked) ? Color.ShallowRed : Color.ShallowOrange;
+        
+                        on_keyword_validate(keyword.paragraph._id, e.target.checked);
+                    }
+                }
+        
+                checked={ (keyword.paragraph.validation != undefined && keyword.paragraph.validation.is_validated)}>
+        
+                </input>)
             }
+            )()
         }
-        checked={keyword.validation.is_validated}
-        ></input>
-        {keyword.text}
-    </label>
+
+        <p data-comment={has_comments}
+        onClick={() => {
+            console.log(keyword);
+            on_ui_event(NoteUIEventID.CommentOpen, keyword);
+        }}>{keyword.text}</p>
+    </section>
     </div> );
 }

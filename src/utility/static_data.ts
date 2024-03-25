@@ -20,6 +20,13 @@ export const EventID = Object.freeze({
     Paste : "event@paste",
 });
 
+export const NoteUIEventID = Object.freeze({
+    // Comment
+    CommentOpen : "event@comment_open",
+    CommentClose : "event@comment_close",
+    CommentConfirm : "event@comment_confirm",
+});
+
 export const LangaugeCode = Object.freeze({
     AutoDetect: "Autodetect",
     TraditionalChinese : "zh-hant",
@@ -64,7 +71,9 @@ export const MessageID = Object.freeze({
     ContentCreate : 2,
 
     NoteUpdate: 20,
-    NoteEnter: 21
+    NoteEnter: 21,
+
+    OpenURL: 30,
 });
 
 export const StorageID = Object.freeze({
@@ -95,4 +104,27 @@ export const Color = Object.freeze({
 
 export const Keys = Object.freeze({
     GooglePeopleAPIKey: "AIzaSyC5GwtznCj3jISGq9q4UwKJTXiWolS96EU",
+});
+
+export const HighlightKeyTable = Object.freeze({
+    CLASS_NAME: "class_name",
+    POINTER_ENTER: "pointer_enter",
+    POINTER_LEAVE: "pointer_leave",
+
+    KEYWORD: "keyword",
+    VALIDATION: "validation",
+});
+
+
+export const HighlightConfigTable = Object.freeze({
+    "keyword": {
+        "class_name": "keyword_comp",
+        "pointer_enter": Color.DarkOrange,
+        "pointer_leave": Color.ShallowGreen,
+    },
+    "validation": {
+        "class_name": "validation_comp",
+        "pointer_enter": Color.DarkOrange,
+        "pointer_leave": Color.ShallowOrange,
+    }
 });

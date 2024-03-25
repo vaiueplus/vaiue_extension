@@ -116,7 +116,9 @@ hr {
     text-overflow: ellipsis;
 
     .context_wrapper {
+
         button {
+            display: none;
             position: absolute;
             //margin-bottom: 2em;
             margin-top: -1em;
@@ -126,6 +128,12 @@ hr {
             &:hover{
                 background-color: v.$color_white;
             }
+        }
+    }
+
+    &:hover {
+        button {
+            display: block;
         }
     }
 }
@@ -211,6 +219,15 @@ hr {
 
                 &:hover {
                     background-color: v.$color_hover;
+                }
+
+                section {
+                    display: flex;
+                    gap: 0.5em;
+                }
+
+                p[data-comment=true] {
+                    text-decoration: underline;
                 }
             }
             
