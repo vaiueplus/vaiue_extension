@@ -133,6 +133,12 @@ export class RenderCommentBar extends AbstractMovable {
                                 comment_action.set_comment_index(-1);
                                 comment_action.set_comment_flag(true);    
                             }
+                            
+                            //Click and scroll to bottom of div
+                            DoDelayAction(25, () => {
+                                const buffer = document.querySelector(`#float_comment_bar section`);
+                                if (buffer != undefined) buffer.scrollTo(0, buffer.scrollHeight);        
+                            });            
                         }}>{ comments[i].text }
                             <img src={dot_svg} onClick={(e) => {
                                     e.stopPropagation(); 

@@ -33,11 +33,16 @@
     section {
         display: flex;
         gap : 0.4em;
-        
-        input {
-            flex: 1;
-            min-width: 0;
+        align-items: center;  
+        justify-content: space-between;
+        h2 {
+            font-weight: 600;
         }
+    }
+
+    input {
+        flex: 1;
+        min-width: 0;
     }
 }
 

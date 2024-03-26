@@ -52,11 +52,11 @@ export class RenderSourcePanel extends AbstractMovable {
     render() {
         return(
             <div id={this.id}>
-                <h2>AI Tool</h2>
                 <section>
-                    <label>Source</label>
-                    <input type="text"></input>
+                    <h2>URL</h2>
+                    <h2>INSERT</h2>
                 </section>
+                <input type="text"></input>
                 <button className="button" onClick={this.on_source_confirm_click.bind(this)}>Set Link</button>
             </div>
         )
@@ -84,11 +84,13 @@ export class RenderSideActionBar extends AbstractMovable {
     render() {
         return(
             <div id={this.id}>
-                <button onClick={() => this._callback?.(this._block_id, FloatActionBarState.Delete)}>Remove</button>
+                <button onClick={() => this._callback?.(this._block_id, FloatActionBarState.AI_Source)}>URL</button>
                 <hr></hr>
                 <button onClick={() => this._callback?.(this._block_id, FloatActionBarState.Move_Up)}>Up</button>
                 <hr></hr>
                 <button onClick={() => this._callback?.(this._block_id, FloatActionBarState.Move_Down)}>Down</button>
+                <hr></hr>
+                <button onClick={() => this._callback?.(this._block_id, FloatActionBarState.Delete)}>Remove</button>
             </div>
         )
     }
@@ -159,8 +161,9 @@ export const MovePanelToPos = function(target: HTMLBaseElement, bound: DOMRect, 
     if (offset_x > 0) x -= offset_x;
 
     //No stick into bottom wall
+    let additional_height = 40; //For comment
     let offset_y = (y + bound.height) - body_height;
-    if (offset_y > 0) y -= offset_y;
+    if (offset_y > 0) y -= offset_y + additional_height;
 
     target.style.left = x + 'px';
     target.style.top = y + 'px';

@@ -48,7 +48,7 @@ export const BlockSlateContent = memo(function({ note_block, version, index, foc
         let display_source_dom = () => {
             if (note_block.source != null)
                 return (<div className='source_comp'>
-                    <Link to={note_block.source} onClick={() => {
+                    <Link to={"#"} onClick={() => {
                         let messageStruct: ExtensionMessageStruct = { id: MessageID.OpenURL, sender: MessageSender.SidePanel, body: note_block.source};
                         Browser.runtime.sendMessage(messageStruct);
                     }}  >{GetDomain(note_block.source)}</Link>

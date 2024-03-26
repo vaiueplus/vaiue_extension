@@ -68,9 +68,13 @@ export function PointBoxSection(x: number, y : number, left: number, right: numb
 export const Clamp = (val, min, max) => Math.min(Math.max(val, min), max)
 
 export function GetDomain(url: string) {
-  let domain = (new URL(url));
+  try {
+    let domain = (new URL(url));
 
-  return domain.hostname;
+    return domain.hostname;  
+  } catch {
+    return url;
+  }
 }
 
 export function GetLocalStorageValue(key: string, default_val: string): string{

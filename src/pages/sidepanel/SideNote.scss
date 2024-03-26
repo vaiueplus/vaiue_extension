@@ -225,10 +225,10 @@ hr {
                     display: flex;
                     gap: 0.5em;
                 }
+            }
 
-                p[data-comment=true] {
-                    text-decoration: underline;
-                }
+            p[data-comment=true] {
+                text-decoration: underline;
             }
             
             .delete_btn {

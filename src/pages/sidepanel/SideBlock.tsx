@@ -81,6 +81,7 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         mouse_helper.register_changes(() => {
             floatSelectBar.show(false);
             floatActionbar.show(false);
+            floatSourcePanel.show(false);
         });
 
         mouse_helper.register_paste(on_paste_event);
@@ -139,10 +140,10 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
     }
 
     const on_action_bar_state_click = function(block_id:string, state: FloatActionBarState) {
-        // if (state == FloatActionBarState.AI_Source) {
-        //     ShowFloatingBoard(floatSourcePanel, MouseHelper.x, MouseHelper.y);
-        //     floatActionbar.show(false);
-        // }
+        if (state == FloatActionBarState.AI_Source) {
+            ShowFloatingBoard(floatSourcePanel, MouseHelper.x, MouseHelper.y - 100);
+            floatActionbar.show(false);
+        }
 
         if (state == FloatActionBarState.Delete) {
             delete_block_by_id_action(page_id, block_id);
